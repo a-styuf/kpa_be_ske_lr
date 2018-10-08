@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main_win.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.11.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -334,8 +334,8 @@ class Ui_MainWindow(object):
         self.onBEPButt.setText(_translate("MainWindow", "ВКЛ БЭ"))
         self.offBEPButt.setText(_translate("MainWindow", "ВЫКЛ БЭ"))
         self.testDEPPButt.setTitle(_translate("MainWindow", "Тестовый сигнал для ДЭП-ов"))
-        self.depP30PButt.setText(_translate("MainWindow", "+30 В"))
-        self.depM30PButt.setText(_translate("MainWindow", "-30 В"))
+        self.depP30PButt.setText(_translate("MainWindow", "+ U"))
+        self.depM30PButt.setText(_translate("MainWindow", "- U"))
         self.dep0PButt.setText(_translate("MainWindow", "0 В"))
         self.testMPPPButt.setTitle(_translate("MainWindow", "Тестовый сигнал МПП"))
         self.pushButton_3.setText(_translate("MainWindow", "Канал 2"))
