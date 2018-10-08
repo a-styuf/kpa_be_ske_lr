@@ -325,7 +325,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "KPA SKE KLIENT"))
         self.powerGBox.setTitle(_translate("MainWindow", "Питание"))
         self.powOnPButt.setText(_translate("MainWindow", "Включить"))
         self.powOffPButt.setText(_translate("MainWindow", "Выключить"))
