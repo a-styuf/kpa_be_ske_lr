@@ -9,7 +9,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
     def __init__(self):
         # Это здесь нужно для доступа к переменным, методам
         # и т.д. в файле design.py
-        #
+        # ячс пп 1
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         #
