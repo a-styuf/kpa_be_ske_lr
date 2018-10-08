@@ -2,7 +2,6 @@ import sys
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor, QBrush
 import main_win
-import os
 import kpa_ske_lr
 
 
@@ -10,6 +9,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
     def __init__(self):
         # Это здесь нужно для доступа к переменным, методам
         # и т.д. в файле design.py
+        #
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         #
@@ -29,12 +29,16 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         #
         self.DataUpdateTimer = QtCore.QTimer()
         self.DataUpdateTimer.timeout.connect(self.data_update)
-        self.DataUpdateTimer.start(1000)
+        self.DataUpdateTimer.start(500)
 
     def data_update(self):
         # обновление лога
         for text in self.kpa.serial.get_log():
             self.LogTEdit.append(text)
+        all_text = self.LogTEdit.toPlainText()
+        if len(all_text) > 100000:
+            self.LogTEdit.clear()
+        # обновление статуса
         self.statusTEdit.clear()
         self.statusTEdit.append(self.kpa.serial.error_string)
         # чтение данных АЦП

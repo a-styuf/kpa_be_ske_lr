@@ -160,6 +160,7 @@ class MySerial(serial.Serial):
                                         nansw -= 1
                                     with self.ans_data_lock:
                                         self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
+                                        print(self.answer_data)
                                 else:
                                     buf = read_data[1:]
                                     read_data = bytearray(b"")

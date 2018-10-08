@@ -249,7 +249,7 @@
                 </size>
                </property>
                <property name="text">
-                <string>+30 В</string>
+                <string>+ U</string>
                </property>
               </widget>
              </item>
@@ -268,7 +268,7 @@
                 </size>
                </property>
                <property name="text">
-                <string>-30 В</string>
+                <string>- U</string>
                </property>
               </widget>
              </item>
