@@ -150,7 +150,7 @@ class MySerial(serial.Serial):
                     with self.log_lock:
                         self.log_buffer.append(get_time() + bytes_array_to_str(read_data))
                     read_data = buf + bytes(read_data)  # прибавляем к новому куску старый кусок
-                    # print(bytes_array_to_str(read_data))
+                    print(bytes_array_to_str(read_data))
                     if len(read_data) >= 8:
                         if read_data[0] == 0x00:
                             if len(read_data) >= read_data[5] + 8:  # проверка на запрос
@@ -158,9 +158,9 @@ class MySerial(serial.Serial):
                                 if 1:  # crc16.calc_to_list(read_data,  read_data[5] + 8) == [0, 0]: todo:
                                     if comm == read_data[4]:
                                         nansw -= 1
-                                    with self.ans_data_lock:
-                                        self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
-                                        print(self.answer_data)
+                                        with self.ans_data_lock:
+                                            self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
+                                            print(self.answer_data)
                                 else:
                                     buf = read_data[1:]
                                     read_data = bytearray(b"")
