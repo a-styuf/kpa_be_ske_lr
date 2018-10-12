@@ -138,7 +138,7 @@ class MySerial(serial.Serial):
                 with self.log_lock:
                     self.log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
             # прием команд
-            time.sleep(0.01)
+            time.sleep(0.050)
             if self.is_open is True:
                 try:
                     read_data = self.read(128)
