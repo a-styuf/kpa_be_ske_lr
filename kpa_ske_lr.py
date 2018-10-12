@@ -18,17 +18,19 @@ class Data:
                              0, 0, 0, 0, 0, 0, 0, 0]
         self.adc_data_bot = [1700, 1908, 1901, 1910, 0, 0, 0, 0,
                              0, 0, 0, 0, 0, 0, 0, 0]
+        self.adc_data_nodata = [0, 0, 0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0, 0, 0]
         # калибровка ацп Val = a*x + b
         self.adc_a = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
                       1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
         self.adc_b = [0, 0, 0, 0, 0, 0, 0, 0,
                       0, 0, 0, 0, 0, 0, 0, 0]
-        # цветовая схема
-        self.adc_color = [["lightcoral", "lightcoral", "lightcoral"] for i in range(len(self.adc_name))]
-        self.adc_color[0] = ["lightcoral", "lightcoral", "palegreen"]  # KC
-        self.adc_color[1] = ["mediumturquoise", "lightcoral", "palegreen"]  # AMKO
-        self.adc_color[2] = ["mediumturquoise", "lightcoral", "palegreen"]  # НЦМ
-        self.adc_color[3] = ["mediumturquoise", "lightcoral", "palegreen"]  # КПБЭ
+        # цветовая схема: нет данных - ниже нижней границы - между нижней и верхней - выше верхней
+        self.adc_color = [["lightcoral", "lightcoral", "lightcoral", "ghostwhite"] for i in range(len(self.adc_name))]
+        self.adc_color[0] = ["lightcoral", "lightcoral", "palegreen", "ghostwhite"]  # KC
+        self.adc_color[1] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # AMKO
+        self.adc_color[2] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # НЦМ
+        self.adc_color[3] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # КПБЭ
         # ## GPIO ## #
         self.gpio_a, self.gpio_b = 0x00, 0x00
         #
@@ -83,7 +85,10 @@ class Data:
         pass
 
     def get_adc_data_color_scheme(self, channel_num):
-        color = self.adc_color[channel_num][self.adc_data_state[channel_num]]
+        if self.serial.is_open:
+            color = self.adc_color[channel_num][self.adc_data_state[channel_num]]
+        else:
+            color = self.adc_color[channel_num][3]
         return color
 
 
