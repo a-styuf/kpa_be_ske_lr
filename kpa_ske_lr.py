@@ -1,4 +1,5 @@
 import kpa_ske_lr_serial
+import copy
 
 
 class Data:
@@ -71,11 +72,12 @@ class Data:
         data = []
         with self.serial.ans_data_lock:
             if self.serial.answer_data:
-                data = self.serial.answer_data.pop(0)
-        if data:
-            if data[0] == 0x04:  # получение данных АЦП
-                for i in range(len(data[1])//2):
-                    self.adc_data[i] = self.adc_a[i]*(int.from_bytes(data[1][2*i:2*i+2], signed=False, byteorder='big')
+                data = copy.deepcopy(self.serial.answer_data)
+                self.serial.answer_data = []
+        for var in data:
+            if var[0] == 0x04:  # получение данных АЦП
+                for i in range(len(var[1])//2):
+                    self.adc_data[i] = self.adc_a[i]*(int.from_bytes(var[1][2*i:2*i+2], signed=False, byteorder='big')
                                                       & 0x0FFF) + self.adc_b[i]
                     self.adc_data_state[i] = bound_calc(self.adc_data[i], self.adc_data_top[i], self.adc_data_bot[i])
         pass
