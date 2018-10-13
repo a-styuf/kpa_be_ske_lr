@@ -56,7 +56,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
             try:
                 table_item = QtWidgets.QTableWidgetItem(self.kpa.adc_name[row])
                 self.DataTable.setItem(row, 0, table_item)
-                table_item = QtWidgets.QTableWidgetItem("%d" % self.kpa.adc_data[row])
+                table_item = QtWidgets.QTableWidgetItem("%.4G" % self.kpa.adc_data[row])
                 table_item.setBackground(QColor(self.kpa.get_adc_data_color_scheme(row)))
                 self.DataTable.setItem(row, 1, table_item)
             except IndexError:
