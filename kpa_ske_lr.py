@@ -25,7 +25,7 @@ class Data:
                       1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
         self.adc_b = [0.0, -0.26,  -0.26,  -0.26, -10.926, -110.49, 0, 0,
                       0, 0, 0, 0, 0, 0, 0, 0]
-        # цветовая схема: нет данных - ниже нижней границы - между нижней и верхней - выше верхней
+        # цветовая схема:  ниже нижней границы - между нижней и верхней - выше верхней - нет данных
         self.adc_color = [["lightcoral", "lightcoral", "lightcoral", "ghostwhite"] for i in range(len(self.adc_name))]
         self.adc_color[0] = ["lightcoral", "lightcoral", "palegreen", "ghostwhite"]  # KC
         self.adc_color[1] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # AMKO
