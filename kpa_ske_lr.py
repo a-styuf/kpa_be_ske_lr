@@ -1,5 +1,7 @@
 import kpa_ske_lr_serial
 import copy
+import time
+import threading
 
 
 class Data:
@@ -11,7 +13,7 @@ class Data:
                          "Канал 8, кв", "Канал 9, кв", "Канал 10, кв", "Канал 11, кв",
                          "Канал 12, кв", "Канал 13, кв", "Канал 14, кв", "Канал 15, кв",]
         self.adc_data = [0 for i in range(len(self.adc_name))]
-        self.adc_data_state = [0 for i in range(len(self.adc_name))]
+        self._adc_data_state = [0 for i in range(len(self.adc_name))]
         # ## АЦП ## #
         # границы для определения статуса
         self.adc_data_top = [1700, 2063, 2056, 2064, 0, 0, 0, 0,
@@ -33,7 +35,15 @@ class Data:
         self.adc_color[3] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # КПБЭ
         # ## GPIO ## #
         self.gpio_a, self.gpio_b = 0x00, 0x00
+        # ## MKO ## #
+        self.mko_cw = 0x0000
+        self.mko_aw = 0x0000
+        self.mko_data = []
         #
+        self._close_event = threading.Event()
+        self.parc_thread = threading.Thread(target=self.parc_data, args=(), daemon=True)
+        self.parc_thread.start()
+        self.data_lock = threading.Lock()
         pass
 
     def get_adc(self):
@@ -70,23 +80,48 @@ class Data:
         self.gpio_a &= ~0x07
         self.serial.request(req_type="set_gpio", data=[self.gpio_a, self.gpio_b])
 
+    def send_to_rt(self, addr, subaddr, data, leng):
+        self.mko_cw = ((addr & 0x1F) << 11) + (0x00 << 10) + ((subaddr & 0x1F) << 5) + (leng & 0x1F)
+        rt_data = [(self.mko_cw >> 8) & 0xFF, (self.mko_cw >> 0) & 0xFF]
+        rt_data.extend(data)
+        print(rt_data)
+        self.serial.request(req_type="set_gpio", data=[rt_data])
+
     def parc_data(self):
-        data = []
-        with self.serial.ans_data_lock:
-            if self.serial.answer_data:
-                data = copy.deepcopy(self.serial.answer_data)
-                self.serial.answer_data = []
-        for var in data:
-            if var[0] == 0x04:  # получение данных АЦП
-                for i in range(len(var[1])//2):
-                    self.adc_data[i] = self.adc_a[i]*(int.from_bytes(var[1][2*i:2*i+2], signed=False, byteorder='big')
-                                                      & 0x0FFF) + self.adc_b[i]
-                    self.adc_data_state[i] = bound_calc(self.adc_data[i], self.adc_data_top[i], self.adc_data_bot[i])
+        while True:
+            time.sleep(0.1)
+            data = []
+            with self.serial.ans_data_lock:
+                if self.serial.answer_data:
+                    data = copy.deepcopy(self.serial.answer_data)
+                    self.serial.answer_data = []
+            for var in data:
+                if var[0] == 0x04:  # получение данных АЦП
+                    for i in range(len(var[1]) // 2):
+                        self.adc_data[i] = self.adc_a[i]*(int.from_bytes(var[1][2*i:2*i+2], signed=False, byteorder='big')
+                                                          & 0x0FFF) + self.adc_b[i]
+                elif var[0] == 0x07:
+                    self.mko_aw = int.from_bytes(var[1][0:2], signed=False, byteorder='big')
+                    for i in range(1, len(var[1]) // 2):
+                        self.mko_data = int.from_bytes(var[1][2*i:2*(i + i)], signed=False, byteorder='big')
+                        print(self.mko_data)
+            if self._close_event.is_set() is True:
+                self._close_event.clear()
+                return
         pass
 
-    def get_adc_data_color_scheme(self, channel_num):
+    def get_adc_data(self):
+        adc_color = []
+        with self.serial.ans_data_lock:
+            adc_data_tmp = copy.deepcopy(self.adc_data)
+        for i in range(len(adc_data_tmp)):
+            self._adc_data_state[i] = bound_calc(adc_data_tmp[i], self.adc_data_top[i], self.adc_data_bot[i])
+            adc_color.append(self._get_adc_data_color_scheme(i))
+        return adc_data_tmp, adc_color
+
+    def _get_adc_data_color_scheme(self, channel_num):
         if self.serial.is_open:
-            color = self.adc_color[channel_num][self.adc_data_state[channel_num]]
+            color = self.adc_color[channel_num][self._adc_data_state[channel_num]]
         else:
             color = self.adc_color[channel_num][3]
         return color
@@ -96,3 +131,24 @@ def bound_calc(val, top, bot):
     result = 2 if val > top else 1
     result = 0 if val < bot else result
     return result
+
+
+def get_time():
+    return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f: " % time.clock()).split(".")[1]
+
+
+def str_to_list(send_str):  # функция, которая из последовательности шестнадцетиричных слов в строке без
+    send_list = []  # идентификатора 0x делает лист шестнадцетиричных чисел
+    send_str = send_str.split(' ')
+    for i, ch in enumerate(send_str):
+        send_str[i] = ch
+        send_list.append(int(send_str[i], 16))
+    return send_list
+
+
+def bytes_array_to_str(bytes_array):
+    bytes_string = ""
+    for i, ch in enumerate(bytes_array):
+        byte_str = (" %02X" % bytes_array[i])
+        bytes_string += byte_str
+    return bytes_string

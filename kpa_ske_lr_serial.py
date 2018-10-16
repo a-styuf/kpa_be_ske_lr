@@ -4,7 +4,6 @@ import threading
 import time
 import crc16
 import copy
-from PyQt5 import QtCore
 
 
 class MySerial(serial.Serial):
@@ -42,13 +41,11 @@ class MySerial(serial.Serial):
         # для работы с потоками
         self.read_write_thread = None
         self._close_event = threading.Event()
-        self.read_write_thread = threading.Thread(target=self.thread_function, args=())
+        self.read_write_thread = threading.Thread(target=self.thread_function, args=(), daemon=True)
         self.read_write_thread.start()
         self.log_lock = threading.Lock()
         self.com_send_lock = threading.Lock()
         self.ans_data_lock = threading.Lock()
-
-    action = QtCore.pyqtSignal()
 
     def open_id(self):  # функция для установки связи с КПА
         com_list = serial.tools.list_ports.comports()
@@ -161,6 +158,10 @@ class MySerial(serial.Serial):
                                         with self.ans_data_lock:
                                             self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
                                             # print(self.answer_data)
+                                    elif comm == read_data[4]:
+                                        nansw -= 1
+                                        with self.ans_data_lock:
+                                            self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
                                 else:
                                     buf = read_data[1:]
                                     read_data = bytearray(b"")
