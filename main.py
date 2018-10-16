@@ -27,16 +27,19 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.powOnPButt.clicked.connect(self.kpa.power_on)
         self.powOffPButt.clicked.connect(self.kpa.power_off)
         #
+        self.onBEPButt.clicked.connect(lambda: self.ku_on_off(mode="on"))
+        self.offBEPButt.clicked.connect(lambda: self.ku_on_off(mode="off"))
+        #
         self.depP30PButt.clicked.connect(self.kpa.dep_p24v_on)
         self.depM30PButt.clicked.connect(self.kpa.dep_m24v_on)
         self.dep0PButt.clicked.connect(self.kpa.dep_0v_on)
         #
         self.DataUpdateTimer = QtCore.QTimer()
         self.DataUpdateTimer.timeout.connect(self.data_update)
-        self.DataUpdateTimer.start(500)
+        self.DataUpdateTimer.start(1000)
         # МКО #
         # контейнеры для вставки юнитов
-        self.units_widgets = mko_unit.Widgets(self.scrollAreaWidgetContents)
+        self.units_widgets = mko_unit.Widgets(self.scrollAreaWidgetContents, mko=self.kpa)
         self.units_widgets.action.connect(self.data_table_slot)
         self.mkoPollingPBar.setValue(0)
         self.setLayout(self.units_widgets)
@@ -51,7 +54,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
     # МКО #
     def mko_polling(self):
         for i in range(len(self.units_widgets.unit_list)):
-            time.sleep(0.1)
+            time.sleep(0.25)
             if self.units_widgets.unit_list[i].RWBox.currentText() in "Чтение":  # read
                 self.units_widgets.unit_list[i].action()
                 self.mkoPollingPBar.setValue(100 * i / len(self.units_widgets.unit_list))
@@ -151,7 +154,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.statusTEdit.clear()
         self.statusTEdit.append(self.kpa.serial.error_string)
         # чтение данных АЦП
-        self.kpa.get_adc()
+        # self.kpa.get_adc()
         # обновляем таблицу
         self.table_write()
         # выводим кол-во неответов
@@ -170,6 +173,14 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                 self.DataTable.setItem(row, 1, table_item)
             except IndexError:
                 pass
+        pass
+
+    def ku_on_off(self, mode="on"):
+        time_ms = int(self.durationSBox.value())
+        if mode in "on":
+            self.kpa.ku_on(time_ms=time_ms)
+        else:
+            self.kpa.ku_off(time_ms=time_ms)
         pass
 
     #

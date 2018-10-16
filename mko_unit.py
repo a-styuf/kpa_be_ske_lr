@@ -1,7 +1,8 @@
 import sys
 from PyQt5 import QtWidgets, QtCore
 import mko_unit_widget
-import configparser
+import threading
+import time
 
 
 class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
@@ -22,9 +23,6 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
                 self.name = kw.pop(key)
             else:
                 pass
-        #
-        # self.ta1_mko = TA1()
-        # self.ta1_mko.init()
         # конфигурация
         self.cfg_dict = {"addr": "22",
                          "subaddr": "1",
@@ -46,6 +44,9 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         #
         self.label.setText("%d" % self.num)
         self.ActionButton.clicked.connect(self.action)
+        #
+        self.MKOTimer = QtCore.QTimer()
+        self.MKOTimer.timeout.connect(self.set_data_to_unit)
 
     def set_num(self, n):
         self.num = n
@@ -86,25 +87,34 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         return self.cfg_dict
 
     def write(self):
-        self.connect()
-        self.ta1_mko.SendToRT\
-            (int(self.AddrSpinBox.value()), int(self.SubaddrSpinBox.value()),
-             self.get_data(), int(self.LengSpinBox.value()))
-        self.AWLine.setText("0x{:04X}".format(self.ta1_mko.answer_word))
-        self.CWLine.setText("0x{:04X}".format(self.ta1_mko.command_word))
-        self.state_check()
-        self.ta1_mko.disconnect()
+        if self.mko.serial.is_open:
+            self.mko.send_to_rt(int(self.AddrSpinBox.value()), int(self.SubaddrSpinBox.value()),
+                                self.get_data(), int(self.LengSpinBox.value()))
+            self.MKOTimer.singleShot(200, self.set_data_to_unit)
+            self.state = 0
+        else:
+            self.state = 1
         pass
 
     def read(self):
-        self.connect()
-        self.data = self.ta1_mko.ReadFromRT(int(self.AddrSpinBox.value()), int(self.SubaddrSpinBox.value()),
-                                            int(self.LengSpinBox.value()))
-        self.insert_data(self.data)
-        self.AWLine.setText("0x{:04X}".format(self.ta1_mko.answer_word))
-        self.CWLine.setText("0x{:04X}".format(self.ta1_mko.command_word))
-        self.ta1_mko.disconnect()
-        self.state_check()
+        if self.mko.serial.is_open:
+            self.mko.read_from_rt(int(self.AddrSpinBox.value()), int(self.SubaddrSpinBox.value()),
+                                  int(self.LengSpinBox.value()))
+            self.MKOTimer.singleShot(200, self.set_data_to_unit)
+            self.state = 0
+        else:
+            self.state = 1
+        pass
+
+    def set_data_to_unit(self):
+        cw, aw, data = self.mko.get_mko_data()
+        self.CWLine.setText("0x{:04X}".format(cw))
+        if aw != 0x0000:
+            self.AWLine.setText("0x{:04X}".format(aw))
+            self.insert_data(data)
+            self.state = 0
+        else:
+            self.state = 2
         pass
 
     def action(self):
@@ -119,7 +129,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         # print(self.state, self.ta1_mko.bus_state)
         self.state = self.ta1_mko.state
         if self.state == 1:
-            self.StatusLabel.setText("TA1-USB")
+            self.StatusLabel.setText("КПА")
             self.StatusLabel.setStyleSheet('QLabel {background-color: orangered;}')
         elif self.state == 2:
             self.StatusLabel.setText("Аппаратура")
@@ -136,7 +146,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         pass
 
     def connect(self):
-        self.state = self.ta1_mko.init()
+        # self.state = self.ta1_mko.init()
         return self.state
 
     def insert_data(self, data):
@@ -144,7 +154,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
             for column in range(self.DataTable.columnCount()):
                 try:
                     table_item = QtWidgets.QTableWidgetItem("%04X" % data[row*8 + column])
-                except IndexError:
+                except (IndexError, TypeError):
                     table_item = QtWidgets.QTableWidgetItem("0000")
                 self.DataTable.setItem(row, column, table_item)
         pass
@@ -162,15 +172,18 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
 class Widgets(QtWidgets.QVBoxLayout):
     action = QtCore.pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, **kw):
         super().__init__(parent)
+        for key in sorted(kw):
+            if key == "mko":
+                self.mko = kw.pop(key)
         self.parent = parent
         self.unit_list = []
         self.table_data = []
         pass
 
     def add_unit(self):
-        widget_to_add = Widget(self.parent, num=len(self.unit_list))
+        widget_to_add = Widget(self.parent, num=len(self.unit_list), mko=self.mko)
         self.unit_list.append(widget_to_add)
         self.addWidget(widget_to_add)
         widget_to_add.ActionButton.clicked.connect(self.multi_action)

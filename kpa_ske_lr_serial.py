@@ -129,13 +129,14 @@ class MySerial(serial.Serial):
                 try:
                     self.state = 1
                     self.write(bytes(data_to_send))
+                    # print(data_to_send)
                 except serial.serialutil.SerialException as error:
                     self.state = 0
                     pass
                 with self.log_lock:
                     self.log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
             # прием команд
-            time.sleep(0.050)
+            time.sleep(0.010)
             if self.is_open is True:
                 try:
                     read_data = self.read(128)
@@ -158,10 +159,6 @@ class MySerial(serial.Serial):
                                         with self.ans_data_lock:
                                             self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
                                             # print(self.answer_data)
-                                    elif comm == read_data[4]:
-                                        nansw -= 1
-                                        with self.ans_data_lock:
-                                            self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
                                 else:
                                     buf = read_data[1:]
                                     read_data = bytearray(b"")

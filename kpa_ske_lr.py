@@ -50,12 +50,12 @@ class Data:
         self.serial.request(req_type="get_adc")
         pass
 
-    def ku_on(self):
-        self.serial.request(req_type="ku_on", data=[0xFF, 0xFF])
+    def ku_on(self, time_ms=100):
+        self.serial.request(req_type="ku_on", data=[0x00, time_ms])
         pass
 
-    def ku_off(self):
-        self.serial.request(req_type="ku_off", data=[0xFF, 0xFF])
+    def ku_off(self, time_ms=100):
+        self.serial.request(req_type="ku_off", data=[0x00, time_ms])
         pass
 
     def power_on(self):
@@ -83,13 +83,19 @@ class Data:
     def send_to_rt(self, addr, subaddr, data, leng):
         self.mko_cw = ((addr & 0x1F) << 11) + (0x00 << 10) + ((subaddr & 0x1F) << 5) + (leng & 0x1F)
         rt_data = [(self.mko_cw >> 8) & 0xFF, (self.mko_cw >> 0) & 0xFF]
+        self.mko_data = data
         rt_data.extend(data)
-        print(rt_data)
-        self.serial.request(req_type="set_gpio", data=[rt_data])
+        self.serial.request(req_type="mko_a", data=rt_data)
+
+    def read_from_rt(self, addr, subaddr, leng):
+        self.mko_cw = ((addr & 0x1F) << 11) + (0x01 << 10) + ((subaddr & 0x1F) << 5) + (leng & 0x1F)
+        rt_data = [(self.mko_cw >> 8) & 0xFF, (self.mko_cw >> 0) & 0xFF]
+        self.serial.request(req_type="mko_a", data=rt_data)
+        pass
 
     def parc_data(self):
         while True:
-            time.sleep(0.1)
+            time.sleep(0.01)
             data = []
             with self.serial.ans_data_lock:
                 if self.serial.answer_data:
@@ -100,11 +106,12 @@ class Data:
                     for i in range(len(var[1]) // 2):
                         self.adc_data[i] = self.adc_a[i]*(int.from_bytes(var[1][2*i:2*i+2], signed=False, byteorder='big')
                                                           & 0x0FFF) + self.adc_b[i]
-                elif var[0] == 0x07:
+                elif var[0] == 0x07 or var[0] == 0x08:
                     self.mko_aw = int.from_bytes(var[1][0:2], signed=False, byteorder='big')
-                    for i in range(1, len(var[1]) // 2):
-                        self.mko_data = int.from_bytes(var[1][2*i:2*(i + i)], signed=False, byteorder='big')
-                        print(self.mko_data)
+                    if var[1][2:]:
+                        self.mko_data = []
+                        for i in range(1, len(var[1]) // 2):
+                            self.mko_data.append(int.from_bytes(var[1][2*i:2*(i + 1)], signed=False, byteorder='big'))
             if self._close_event.is_set() is True:
                 self._close_event.clear()
                 return
@@ -118,6 +125,13 @@ class Data:
             self._adc_data_state[i] = bound_calc(adc_data_tmp[i], self.adc_data_top[i], self.adc_data_bot[i])
             adc_color.append(self._get_adc_data_color_scheme(i))
         return adc_data_tmp, adc_color
+
+    def get_mko_data(self):
+        with self.serial.ans_data_lock:
+            mko_data = copy.deepcopy(self.mko_data)
+            mko_aw = self.mko_aw
+            self.mko_aw = 0x0000
+        return self.mko_cw, mko_aw, mko_data
 
     def _get_adc_data_color_scheme(self, channel_num):
         if self.serial.is_open:
