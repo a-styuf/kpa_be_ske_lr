@@ -54,6 +54,9 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.mkoPollingPButt.clicked.connect(self.mko_polling)
         self.LoadCfgPButt.clicked.connect(self.load_cfg)
         self.SaveCfgPButt.clicked.connect(self.save_cfg)
+        # ## Общие ## #
+        self.connectPButt.clicked.connect(self.kpa.reconnect)
+        self.disconnectPButt.clicked.connect(self.kpa.disconnect)
         #
         self.load_init_cfg()
 
@@ -157,8 +160,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         pass
 
     def data_request(self):
+        self.DataUpdateTimer.start(self.adcPeriodSBox.value() * 1000)
         if self.adcCycleCBox.isChecked():
-            self.DataUpdateTimer.start(self.adcPeriodSBox.value()*1000)
             # чтение данных АЦП
             self.single_request()
         pass
@@ -166,7 +169,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
     def data_gui_update(self):
         # обновление статуса
         self.statusTEdit.clear()
-        self.statusTEdit.append(self.kpa.serial.error_string)
+        self.statusTEdit.append(self.kpa.get_state_string())
         # обновление лога
         for text in self.kpa.serial.get_log():
             self.LogTEdit.append(text)

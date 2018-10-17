@@ -28,7 +28,7 @@ class Data:
         self.adc_b = [1647.2, -0.26,  -0.26,  -0.26, -10.926, -110.49, 0, 0,
                       0, 0, 0, 0, 0, 0, 0, 0]
         # цветовая схема:  ниже нижней границы - между нижней и верхней - выше верхней - нет данных
-        self.adc_color = [["lightcoral", "palegreen", "lightcoral", "ghostwhite"] for i in range(len(self.adc_name))]
+        self.adc_color = [["lightcoral", "palegreen", "palegreen", "ghostwhite"] for i in range(len(self.adc_name))]
         self.adc_color[0] = ["palegreen", "lightcoral", "lightcoral", "ghostwhite"]  # KC
         self.adc_color[1] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # AMKO
         self.adc_color[2] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # НЦМ
@@ -44,6 +44,16 @@ class Data:
         self.parc_thread = threading.Thread(target=self.parc_data, args=(), daemon=True)
         self.parc_thread.start()
         self.data_lock = threading.Lock()
+        pass
+
+    def reconnect(self):
+        self.serial.close_id()
+        time.sleep(0.05)
+        self.serial.open_id()
+        pass
+
+    def disconnect(self):
+        self.serial.close_id()
         pass
 
     def get_adc(self):
@@ -132,6 +142,10 @@ class Data:
             mko_aw = self.mko_aw
             self.mko_aw = 0x0000
         return self.mko_cw, mko_aw, mko_data
+
+    def get_state_string(self):
+        state_str = self.serial.state_string[self.serial.state]
+        return state_str
 
     def _get_adc_data_color_scheme(self, channel_num):
         if self.serial.is_open:

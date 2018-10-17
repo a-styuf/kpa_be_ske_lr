@@ -35,7 +35,13 @@ class MySerial(serial.Serial):
         self.com_rec_flag = 0
         self.read_data = b""
         self.read_flag = 0
-        self.error_string = "No error"
+        self.state_string = {
+            -3: "Связь с КПА потеряна",
+            -2: "КПА не отвечает",
+            -1: "Не удалось установить связь с КПА",
+            +0: "Подключите КПА",
+            +1: "Связь с КПА в норме",
+        }
         self.state = 0
         self.log_buffer = []
         # для работы с потоками
@@ -60,14 +66,16 @@ class MySerial(serial.Serial):
                         try:
                             self.open()
                             self.state = 1
-                            self.error_string = "Переподключение успешно"
+                            self.nansw = 0
                             return True
                         except serial.serialutil.SerialException as error:
-                            self.error_string = str(error)
                             return False
-        self.state = 0
-        self.error_string = "Устройство не найдено"
+        self.state = -1
         return False
+
+    def close_id(self):
+        self.close()
+        self.state = 0
         pass
 
     def request(self, req_type="get_time", data=[]):
@@ -117,31 +125,30 @@ class MySerial(serial.Serial):
         buf = bytearray(b"")
         read_data = bytearray(b"")
         comm = 0x00
-        nansw = 0
+        time.sleep(0.010)
         while True:
             nansw = 0
-            # отправка команд
-            if self.com_queue:
-                nansw = 1
-                with self.com_send_lock:
-                    data_to_send = self.com_queue.pop(0)
-                    comm = data_to_send[4]
-                try:
-                    self.state = 1
-                    self.write(bytes(data_to_send))
-                    # print(data_to_send)
-                except serial.serialutil.SerialException as error:
-                    self.state = 0
-                    pass
-                with self.log_lock:
-                    self.log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
-            # прием команд
-            time.sleep(0.010)
             if self.is_open is True:
+                # отправка команд
+                if self.com_queue:
+                    with self.com_send_lock:
+                        data_to_send = self.com_queue.pop(0)
+                        comm = data_to_send[4]
+                    try:
+                        self.write(bytes(data_to_send))
+                        nansw = 1
+                        # print(data_to_send)
+                    except serial.serialutil.SerialException:
+                        self.state = -3
+                        pass
+                    with self.log_lock:
+                        self.log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
+                # прием команд
                 try:
                     read_data = self.read(128)
                     self.read_data = read_data
                 except (TypeError, serial.serialutil.SerialException, AttributeError):
+                    self.state = -3
                     # read_data = bytearray(b"")
                     pass
                 if read_data:
@@ -156,12 +163,12 @@ class MySerial(serial.Serial):
                                 if 1:  # crc16.calc_to_list(read_data,  read_data[5] + 8) == [0, 0]: todo:
                                     if comm == read_data[4]:
                                         nansw -= 1
+                                        self.state = 1
                                         with self.ans_data_lock:
                                             self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
                                             # print(self.answer_data)
-                                else:
-                                    buf = read_data[1:]
-                                    read_data = bytearray(b"")
+                                    else:
+                                        self.state = -3
                         else:
                             buf = read_data[1:]
                             read_data = bytearray(b"")
@@ -173,7 +180,9 @@ class MySerial(serial.Serial):
                     pass
             else:
                 pass
-            self.nansw += nansw
+            if nansw == 1:
+                self.state = -3
+                self.nansw += 1
             if self._close_event.is_set() is True:
                 self._close_event.clear()
                 return
