@@ -497,7 +497,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -548,7 +548,7 @@ class Ui_MainWindow(object):
         item.setText(_translate("MainWindow", "Имя"))
         item = self.DataTable_2.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "Значение"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.mkoTab), _translate("MainWindow", "МКО"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.mkoTab), _translate("MainWindow", "МПИ"))
         self.connectPButt.setText(_translate("MainWindow", "Подключить"))
         self.disconnectPButt.setText(_translate("MainWindow", "Отключить"))
 

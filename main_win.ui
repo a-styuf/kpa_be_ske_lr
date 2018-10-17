@@ -30,7 +30,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="kpaTab">
        <attribute name="title">
@@ -722,7 +722,7 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QWidget" name="mkoTab">
        <attribute name="title">
-        <string>МКО</string>
+        <string>МПИ</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_7">
         <item row="0" column="0">
