@@ -8,7 +8,7 @@ class Data:
     def __init__(self):
         self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH06VN4D"])
         self.serial.open_id()
-        self.adc_name = ["КС", "АМКО", "Норма ЦМ", "КПБЭ",
+        self.adc_name = ["КС, Ом", "АМКО, В", "Норма ЦМ, В", "КПБЭ, В",
                          "U БЭ, В", "I БЭ, мА", "Канал 6, кв", "Канал 7, кв",
                          "Канал 8, кв", "Канал 9, кв", "Канал 10, кв", "Канал 11, кв",
                          "Канал 12, кв", "Канал 13, кв", "Канал 14, кв", "Канал 15, кв",]
@@ -16,20 +16,20 @@ class Data:
         self._adc_data_state = [0 for i in range(len(self.adc_name))]
         # ## АЦП ## #
         # границы для определения статуса
-        self.adc_data_top = [1700, 2063, 2056, 2064, 0, 0, 0, 0,
+        self.adc_data_top = [10, 3.0, 3.0, 3.0, 32.8, 330, 0, 0,
                              0, 0, 0, 0, 0, 0, 0, 0]
-        self.adc_data_bot = [1700, 1908, 1901, 1910, 0, 0, 0, 0,
+        self.adc_data_bot = [10, 1.0, 1.0, 1.0, 22.5, 70, 0, 0,
                              0, 0, 0, 0, 0, 0, 0, 0]
         self.adc_data_nodata = [0, 0, 0, 0, 0, 0, 0, 0,
                                 0, 0, 0, 0, 0, 0, 0, 0]
         # калибровка ацп Val = a*x + b
-        self.adc_a = [1.0, 0.0027, 0.0027, 0.0027, 0.0438, 0.4443, 1.0, 1.0,
+        self.adc_a = [-1.295, 0.0027, 0.0027, 0.0027, 0.0438, 0.4443, 1.0, 1.0,
                       1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-        self.adc_b = [0.0, -0.26,  -0.26,  -0.26, -10.926, -110.49, 0, 0,
+        self.adc_b = [1647.2, -0.26,  -0.26,  -0.26, -10.926, -110.49, 0, 0,
                       0, 0, 0, 0, 0, 0, 0, 0]
         # цветовая схема:  ниже нижней границы - между нижней и верхней - выше верхней - нет данных
-        self.adc_color = [["lightcoral", "lightcoral", "lightcoral", "ghostwhite"] for i in range(len(self.adc_name))]
-        self.adc_color[0] = ["lightcoral", "lightcoral", "palegreen", "ghostwhite"]  # KC
+        self.adc_color = [["lightcoral", "palegreen", "lightcoral", "ghostwhite"] for i in range(len(self.adc_name))]
+        self.adc_color[0] = ["palegreen", "lightcoral", "lightcoral", "ghostwhite"]  # KC
         self.adc_color[1] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # AMKO
         self.adc_color[2] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # НЦМ
         self.adc_color[3] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # КПБЭ

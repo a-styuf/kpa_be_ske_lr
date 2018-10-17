@@ -35,8 +35,12 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.dep0PButt.clicked.connect(self.kpa.dep_0v_on)
         #
         self.DataUpdateTimer = QtCore.QTimer()
-        self.DataUpdateTimer.timeout.connect(self.data_update)
+        self.DataUpdateTimer.timeout.connect(self.data_request)
         self.DataUpdateTimer.start(1000)
+        #
+        self.adcSinglePButt.clicked.connect(self.single_request)
+        self.adcTableTimer = QtCore.QTimer()
+        self.adcTableTimer.timeout.connect(self.data_gui_update)
         # МКО #
         # контейнеры для вставки юнитов
         self.units_widgets = mko_unit.Widgets(self.scrollAreaWidgetContents, mko=self.kpa)
@@ -50,6 +54,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.mkoPollingPButt.clicked.connect(self.mko_polling)
         self.LoadCfgPButt.clicked.connect(self.load_cfg)
         self.SaveCfgPButt.clicked.connect(self.save_cfg)
+        #
+        self.load_init_cfg()
 
     # МКО #
     def mko_polling(self):
@@ -143,25 +149,31 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         pass
 
     # КПА #
-    def data_update(self):
+    def single_request(self):
+        # чтение данных АЦП
+        self.kpa.get_adc()
+        # обновляем таблицу
+        self.adcTableTimer.start(500)
+        pass
+
+    def data_request(self):
+        if self.adcCycleCBox.isChecked():
+            self.DataUpdateTimer.start(self.adcPeriodSBox.value()*1000)
+            # чтение данных АЦП
+            self.single_request()
+        pass
+
+    def data_gui_update(self):
+        # обновление статуса
+        self.statusTEdit.clear()
+        self.statusTEdit.append(self.kpa.serial.error_string)
         # обновление лога
         for text in self.kpa.serial.get_log():
             self.LogTEdit.append(text)
         all_text = self.LogTEdit.toPlainText()
         if len(all_text) > 100000:
             self.LogTEdit.clear()
-        # обновление статуса
-        self.statusTEdit.clear()
-        self.statusTEdit.append(self.kpa.serial.error_string)
-        # чтение данных АЦП
-        # self.kpa.get_adc()
-        # обновляем таблицу
-        self.table_write()
-        # выводим кол-во неответов
-        self.nanswKPASBox.setValue(self.kpa.serial.nansw)
-        pass
-
-    def table_write(self):
+        #
         adc_data, adc_color = self.kpa.get_adc_data()
         self.DataTable.setRowCount(len(adc_data))
         for row in range(len(adc_data)):
@@ -173,6 +185,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                 self.DataTable.setItem(row, 1, table_item)
             except IndexError:
                 pass
+        self.nanswKPASBox.setValue(self.kpa.serial.nansw)
         pass
 
     def ku_on_off(self, mode="on"):

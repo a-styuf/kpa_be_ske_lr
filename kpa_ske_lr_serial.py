@@ -181,7 +181,7 @@ class MySerial(serial.Serial):
 
 
 def get_time():
-    return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f: " % time.clock()).split(".")[1]
+    return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f:" % time.clock()).split(".")[1]
 
 
 def str_to_list(send_str):  # функция, которая из последовательности шестнадцетиричных слов в строке без
@@ -196,6 +196,7 @@ def str_to_list(send_str):  # функция, которая из последо
 def bytes_array_to_str(bytes_array):
     bytes_string = ""
     for i, ch in enumerate(bytes_array):
-        byte_str = (" %02X" % bytes_array[i])
+        byte_str = "" if i%2 else " "
+        byte_str += ("%02X" % bytes_array[i])
         bytes_string += byte_str
     return bytes_string
