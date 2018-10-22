@@ -1,11 +1,12 @@
 import sys
 from PyQt5 import QtWidgets, QtCore
 import mko_unit_widget
-import threading
-import time
+import luna_data
 
 
 class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
+    action_signal = QtCore.pyqtSignal()
+
     def __init__(self, parent, **kw):
         # Это здесь нужно для доступа к переменным, методам
         # и т.д. в файле design.py
@@ -113,6 +114,8 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
             self.AWLine.setText("0x{:04X}".format(aw))
             self.insert_data(data)
             self.state = 0
+            self.table_data = luna_data.frame_parcer(self.data)
+            self.action_signal.emit()
         else:
             self.state = 2
         pass
@@ -120,7 +123,6 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
     def action(self):
         if self.RWBox.currentText() in "Чтение":  # read
             self.read()
-            # self.table_data = luna_data.frame_parcer(self.data)
         else:
             self.write()
         pass
@@ -186,11 +188,11 @@ class Widgets(QtWidgets.QVBoxLayout):
         widget_to_add = Widget(self.parent, num=len(self.unit_list), mko=self.mko)
         self.unit_list.append(widget_to_add)
         self.addWidget(widget_to_add)
-        widget_to_add.ActionButton.clicked.connect(self.multi_action)
+        widget_to_add.action_signal.connect(self.multi_action)
         pass
 
     def multi_action(self):
-        sender = self.sender().parentWidget()
+        sender = self.sender()
         self.table_data = sender.table_data
         self.action.emit()
 

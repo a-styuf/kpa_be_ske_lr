@@ -1,5 +1,5 @@
 import sys
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtGui import QColor, QBrush
 import main_win
 import kpa_ske_lr
@@ -9,13 +9,14 @@ import configparser
 import os
 
 
-class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
     def __init__(self):
         # Это здесь нужно для доступа к переменным, методам
         # и т.д. в файле design.py
         #
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
+        self.setWindowIcon(QtGui.QIcon('main_icon.png'))
         #
         self.config = None
         self.config_file = None
@@ -27,6 +28,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.powOnPButt.clicked.connect(self.kpa.power_on)
         self.powOffPButt.clicked.connect(self.kpa.power_off)
         #
+        self.durationSBox.valueChanged.connect(self.SKE_durationSBox.setValue)  # дублируем значение в поле вкладки СКЭ
         self.onBEPButt.clicked.connect(lambda: self.ku_on_off(mode="on"))
         self.offBEPButt.clicked.connect(lambda: self.ku_on_off(mode="off"))
         #
@@ -54,6 +56,19 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.mkoPollingPButt.clicked.connect(self.mko_polling)
         self.LoadCfgPButt.clicked.connect(self.load_cfg)
         self.SaveCfgPButt.clicked.connect(self.save_cfg)
+        # СКЭ #
+        # Питание, КУ
+        self.SKE_powOnPButt.clicked.connect(self.kpa.power_on)
+        self.SKE_powOffPButt.clicked.connect(self.kpa.power_off)
+        self.SKE_durationSBox.valueChanged.connect(self.durationSBox.setValue)  # дублируем значение в поле вкладки КПА
+        self.SKE_onBEPButt.clicked.connect(lambda: self.ku_on_off(mode="on"))
+        self.SKE_offBEPButt.clicked.connect(lambda: self.ku_on_off(mode="off"))
+        # Тестовые воздействия
+        self.SKE_depP30PButt.clicked.connect(self.kpa.dep_p24v_on)
+        self.SKE_depM30PButt.clicked.connect(self.kpa.dep_m24v_on)
+        self.SKE_dep0PButt.clicked.connect(self.kpa.dep_0v_on)
+        #
+
         # ## Общие ## #
         self.connectPButt.clicked.connect(self.kpa.reconnect)
         self.disconnectPButt.clicked.connect(self.kpa.disconnect)
@@ -80,12 +95,13 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         self.save_init_cfg()
         #
         table_data = self.units_widgets.table_data
-        self.DataTable.setRowCount(len(table_data))
+        print(table_data)
+        self.mkoDataTable.setRowCount(len(table_data))
         for row in range(len(table_data)):
-            for column in range(self.DataTable.columnCount()):
+            for column in range(self.mkoDataTable.columnCount()):
                 try:
                     table_item = QtWidgets.QTableWidgetItem(table_data[row][column])
-                    self.DataTable.setItem(row, column, table_item)
+                    self.mkoDataTable.setItem(row, column, table_item)
                 except IndexError:
                     pass
         pass
@@ -176,7 +192,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
         all_text = self.LogTEdit.toPlainText()
         if len(all_text) > 100000:
             self.LogTEdit.clear()
-        #
+        # таблица для вкладки КПА
         adc_data, adc_color = self.kpa.get_adc_data()
         self.DataTable.setRowCount(len(adc_data))
         for row in range(len(adc_data)):
@@ -188,11 +204,14 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_MainWindow):
                 self.DataTable.setItem(row, 1, table_item)
             except IndexError:
                 pass
+        # Питание и СТМ для вкладки СКЭ
+
+        #
         self.nanswKPASBox.setValue(self.kpa.serial.nansw)
         pass
 
     def ku_on_off(self, mode="on"):
-        time_ms = int(self.durationSBox.value())
+        time_ms = int(self.SKE_durationSBox.value())
         if mode in "on":
             self.kpa.ku_on(time_ms=time_ms)
         else:
