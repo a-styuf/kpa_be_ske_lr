@@ -95,7 +95,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.save_init_cfg()
         #
         table_data = self.units_widgets.table_data
-        print(table_data)
+        # print(table_data)
         self.mkoDataTable.setRowCount(len(table_data))
         for row in range(len(table_data)):
             for column in range(self.mkoDataTable.columnCount()):
@@ -134,7 +134,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         home_dir = os.getcwd()
         try:
             os.mkdir(home_dir + "\\Config")
-        except OSError:
+        except OSError as error:
+            print(error)
             pass
         file_name = QtWidgets.QFileDialog.getOpenFileName(
             self,
@@ -149,7 +150,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
     def save_cfg(self):
         home_dir = os.getcwd()
         config = configparser.ConfigParser()
-        config = self.units_widgets.get_cfg(self.config)
+        config = self.units_widgets.get_cfg(config)
         try:
             os.mkdir(home_dir + "\\Config")
         except OSError:
@@ -161,9 +162,11 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             r"config(*.cfg);;All Files(*)"
         )[0]
         try:
-            with open(file_name, 'w') as configfile:
-                config.write(configfile)
-        except FileNotFoundError:
+            configfile = open(file_name, 'w')
+            config.write(configfile)
+            configfile.close()
+        except FileNotFoundError as error:
+            print(error)
             pass
         pass
 
@@ -218,7 +221,6 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             self.kpa.ku_off(time_ms=time_ms)
         pass
 
-    #
     def closeEvent(self, event):
         self.close()
         pass

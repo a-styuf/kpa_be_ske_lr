@@ -67,7 +67,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         data = self.cfg_dict.get("data", "0 0 0 0").split(" ")
         self.data = [int(var, 16) for var in data]
         self.insert_data(self.data)
-        self.action_state = 0 if self.cfg_dict.get("subaddr", "read") else 1
+        self.action_state = 0 if self.cfg_dict.get("type", "read") in "read" else 1
         if self.action_state == 0:
             self.RWBox.setCurrentText("Чтение")
         else:
@@ -84,7 +84,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         self.cfg_dict["leng"] = "%d" % self.leng
         self.get_data()
         self.cfg_dict["data"] = " ".join(["%04X" % var for var in self.data])
-        self.cfg_dict["type"] = "read" if self.action_state == 0 else "write"
+        self.cfg_dict["type"] = "read" if self.RWBox.currentText() in "Чтение" else "write"
         return self.cfg_dict
 
     def write(self):
@@ -118,6 +118,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
             self.action_signal.emit()
         else:
             self.state = 2
+        self.state_check()
         pass
 
     def action(self):
@@ -129,18 +130,11 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
 
     def state_check(self):
         # print(self.state, self.ta1_mko.bus_state)
-        self.state = self.ta1_mko.state
         if self.state == 1:
             self.StatusLabel.setText("КПА")
             self.StatusLabel.setStyleSheet('QLabel {background-color: orangered;}')
         elif self.state == 2:
             self.StatusLabel.setText("Аппаратура")
-            self.StatusLabel.setStyleSheet('QLabel {background-color: coral;}')
-        elif self.ta1_mko.bus_state == 1:
-            self.StatusLabel.setText("Линия 1")
-            self.StatusLabel.setStyleSheet('QLabel {background-color: coral;}')
-        elif self.ta1_mko.bus_state == 2:
-            self.StatusLabel.setText("Линия 2")
             self.StatusLabel.setStyleSheet('QLabel {background-color: coral;}')
         elif self.state == 0:
             self.StatusLabel.setText("Норма")

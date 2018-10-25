@@ -98,6 +98,8 @@ class MySerial(serial.Serial):
             data_to_send = self.dts_form(com=0x08, data=data)
         elif req_type == "read_ib":
             data_to_send = self.dts_form(com=0x09)
+        else:
+            data_to_send = self.dts_form(com=0x01)
         with self.com_send_lock:
             self.com_queue.append(data_to_send)
         pass

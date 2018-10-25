@@ -23,9 +23,9 @@ class Data:
         self.adc_data_nodata = [0, 0, 0, 0, 0, 0, 0, 0,
                                 0, 0, 0, 0, 0, 0, 0, 0]
         # калибровка ацп Val = a*x + b
-        self.adc_a = [-1.295, 0.0027, 0.0027, 0.0027, 0.0438, 0.4443, 1.0, 1.0,
+        self.adc_a = [-1.295, 0.0027, 0.0027, 0.0027, 0.0438, 0.4914, 1.0, 1.0,
                       1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-        self.adc_b = [1647.2, -0.26,  -0.26,  -0.26, -10.926, -110.49, 0, 0,
+        self.adc_b = [1647.2, -0.26,  -0.26,  -0.26, -10.926, -128.89, 0, 0,
                       0, 0, 0, 0, 0, 0, 0, 0]
         # цветовая схема:  ниже нижней границы - между нижней и верхней - выше верхней - нет данных
         self.adc_color = [["lightcoral", "palegreen", "palegreen", "ghostwhite"] for i in range(len(self.adc_name))]
@@ -36,6 +36,7 @@ class Data:
         # ## GPIO ## #
         self.gpio_a, self.gpio_b = 0x00, 0x00
         # ## MKO ## #
+        self.mko_bus = "mko_a"
         self.mko_cw = 0x0000
         self.mko_aw = 0x0000
         self.mko_data = []
@@ -94,13 +95,19 @@ class Data:
         self.mko_cw = ((addr & 0x1F) << 11) + (0x00 << 10) + ((subaddr & 0x1F) << 5) + (leng & 0x1F)
         rt_data = [(self.mko_cw >> 8) & 0xFF, (self.mko_cw >> 0) & 0xFF]
         self.mko_data = data
-        rt_data.extend(data)
-        self.serial.request(req_type="mko_a", data=rt_data)
+        bytes_data = []
+        for var in data:
+            bytes_data.append(int((var >> 8) & 0xFF))
+            bytes_data.append(int((var >> 0) & 0xFF))
+        rt_data.extend(bytes_data)
+        self.mko_bus = "mko_b" if self.mko_bus == "mko_a" else "mko_a"
+        self.serial.request(req_type=self.mko_bus, data=rt_data)
 
     def read_from_rt(self, addr, subaddr, leng):
         self.mko_cw = ((addr & 0x1F) << 11) + (0x01 << 10) + ((subaddr & 0x1F) << 5) + (leng & 0x1F)
         rt_data = [(self.mko_cw >> 8) & 0xFF, (self.mko_cw >> 0) & 0xFF]
-        self.serial.request(req_type="mko_a", data=rt_data)
+        self.mko_bus = "mko_b" if self.mko_bus == "mko_a" else "mko_a"
+        self.serial.request(req_type=self.mko_bus, data=rt_data)
         pass
 
     def parc_data(self):

@@ -57,7 +57,7 @@ def frame_parcer(frame):
             report_str = "0x "
             for var in frame:
                 report_str += ("%04X " % var)
-            print(report_str)
+            # print(report_str)
 
             #
             data.append(["Метка кадра", "0x%04X" % frame[0]])
