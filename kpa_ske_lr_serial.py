@@ -58,7 +58,7 @@ class MySerial(serial.Serial):
         for com in com_list:
             # print(com)
             for serial_number in self.serial_numbers:
-                # print(com.serial_number, serial_number)
+                print(com.serial_number, serial_number)
                 if com.serial_number is not None:
                     if com.serial_number.find(serial_number) >= 0:
                         # print(com.device)

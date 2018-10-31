@@ -29,11 +29,13 @@ def frame_parcer(frame):
             data.append(["Ошибки МКО", "%d" % frame[11]])
             data.append(["Счетчик включений", "%d" % ((frame[12] >> 8) & 0xFF)])
             data.append(["Рабочий комплект", "%d" % (frame[12] & 0xFF)])
-            data.append(["Разность времени", "%d" % frame[13]])
-            data.append(["Ошибки ВШ", "%d" % ((frame[14] >> 8) & 0xFF)])
-            data.append(["Неответы ВШ", "%d" % (frame[14] & 0xFF)])
-            data.append(["Статус ВШ", "0х%02X" % frame[15]])
-            data.append(["Температура", "%d" % frame[16]])
+            data.append(["Разность времени, c", "%d" % ((frame[13] << 16) + frame[14])])
+            data.append(["Кол-во синхрон., шт", "%d" % frame[15]])
+            data.append(["Ошибки ВШ", "%d" % ((frame[16] >> 8) & 0xFF)])
+            data.append(["Неответы ВШ", "%d" % ((frame[16]) & 0xFF)])
+            data.append(["Статус работы ВШ", "0х%02X" % ((frame[17] >> 8) & 0xFF)])
+            data.append(["Статус неответов ВШ", "0х%02X" % (frame[17] & 0xFF)])
+            data.append(["Температура", "%d" % frame[18]])
             #
             data.append(["CRC-16", "0x%04X" % crc16.calc(frame, 32)])
             pass

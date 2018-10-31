@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main_win.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_main_win(object):
     def setupUi(self, main_win):
         main_win.setObjectName("main_win")
-        main_win.resize(1222, 680)
+        main_win.resize(1218, 680)
         self.centralwidget = QtWidgets.QWidget(main_win)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -644,7 +644,7 @@ class Ui_main_win(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.durationSBox.sizePolicy().hasHeightForWidth())
         self.durationSBox.setSizePolicy(sizePolicy)
-        self.durationSBox.setMinimumSize(QtCore.QSize(40, 25))
+        self.durationSBox.setMinimumSize(QtCore.QSize(25, 25))
         self.durationSBox.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.durationSBox.setMinimum(15)
         self.durationSBox.setMaximum(500)
@@ -787,16 +787,10 @@ class Ui_main_win(object):
         self.adcCycleCBox.setObjectName("adcCycleCBox")
         self.gridLayout_8.addWidget(self.adcCycleCBox, 0, 0, 1, 1)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_4.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.adcPeriodLabel = QtWidgets.QLabel(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.adcPeriodLabel.sizePolicy().hasHeightForWidth())
-        self.adcPeriodLabel.setSizePolicy(sizePolicy)
-        self.adcPeriodLabel.setMinimumSize(QtCore.QSize(153, 0))
-        self.adcPeriodLabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.adcPeriodLabel.setMinimumSize(QtCore.QSize(100, 0))
+        self.adcPeriodLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.adcPeriodLabel.setObjectName("adcPeriodLabel")
         self.horizontalLayout_4.addWidget(self.adcPeriodLabel)
         self.adcPeriodSBox = QtWidgets.QDoubleSpinBox(self.groupBox)
@@ -927,13 +921,13 @@ class Ui_main_win(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
         self.scrollArea.setSizePolicy(sizePolicy)
-        self.scrollArea.setMinimumSize(QtCore.QSize(760, 100))
+        self.scrollArea.setMinimumSize(QtCore.QSize(750, 100))
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 758, 564))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 748, 576))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.horizontalLayout_3.addWidget(self.scrollArea)
@@ -1020,10 +1014,7 @@ class Ui_main_win(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mkoDataTable.sizePolicy().hasHeightForWidth())
         self.mkoDataTable.setSizePolicy(sizePolicy)
-        self.mkoDataTable.setMinimumSize(QtCore.QSize(243, 0))
-        font = QtGui.QFont()
-        font.setPointSize(8)
-        self.mkoDataTable.setFont(font)
+        self.mkoDataTable.setMinimumSize(QtCore.QSize(250, 0))
         self.mkoDataTable.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mkoDataTable.setRowCount(20)
         self.mkoDataTable.setObjectName("mkoDataTable")
@@ -1031,14 +1022,11 @@ class Ui_main_win(object):
         item = QtWidgets.QTableWidgetItem()
         self.mkoDataTable.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.mkoDataTable.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
         item.setTextAlignment(QtCore.Qt.AlignCenter)
-        self.mkoDataTable.setItem(0, 1, item)
+        self.mkoDataTable.setHorizontalHeaderItem(1, item)
         self.mkoDataTable.horizontalHeader().setCascadingSectionResizes(False)
         self.mkoDataTable.horizontalHeader().setDefaultSectionSize(150)
-        self.mkoDataTable.horizontalHeader().setMinimumSectionSize(40)
+        self.mkoDataTable.horizontalHeader().setMinimumSectionSize(50)
         self.mkoDataTable.horizontalHeader().setStretchLastSection(True)
         self.mkoDataTable.verticalHeader().setDefaultSectionSize(25)
         self.horizontalLayout_3.addWidget(self.mkoDataTable)
@@ -1076,7 +1064,7 @@ class Ui_main_win(object):
         main_win.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(main_win)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(main_win)
 
     def retranslateUi(self, main_win):
@@ -1145,7 +1133,7 @@ class Ui_main_win(object):
         self.groupBox.setTitle(_translate("main_win", "АЦП"))
         self.adcSinglePButt.setText(_translate("main_win", "Разовый запрос"))
         self.adcCycleCBox.setText(_translate("main_win", "Циклический опрос"))
-        self.adcPeriodLabel.setText(_translate("main_win", "Интервал опроса, с:"))
+        self.adcPeriodLabel.setText(_translate("main_win", "Интервал циклического опроса, с:"))
         self.nanswKPALabel.setText(_translate("main_win", "Количество неответов КПА, шт"))
         item = self.DataTable.horizontalHeaderItem(0)
         item.setText(_translate("main_win", "Имя"))
@@ -1171,9 +1159,6 @@ class Ui_main_win(object):
         item.setText(_translate("main_win", "Имя"))
         item = self.mkoDataTable.horizontalHeaderItem(1)
         item.setText(_translate("main_win", "Значение"))
-        __sortingEnabled = self.mkoDataTable.isSortingEnabled()
-        self.mkoDataTable.setSortingEnabled(False)
-        self.mkoDataTable.setSortingEnabled(__sortingEnabled)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.mkoTab), _translate("main_win", "МПИ"))
         self.connectPButt.setText(_translate("main_win", "Подключить"))
         self.disconnectPButt.setText(_translate("main_win", "Отключить"))

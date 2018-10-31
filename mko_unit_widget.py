@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mko_unit_widget.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -76,7 +76,7 @@ class Ui_Frame(object):
         self.DataTable.setGeometry(QtCore.QRect(330, 0, 401, 115))
         self.DataTable.setMinimumSize(QtCore.QSize(0, 115))
         font = QtGui.QFont()
-        font.setPointSize(7)
+        font.setPointSize(8)
         self.DataTable.setFont(font)
         self.DataTable.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.DataTable.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)

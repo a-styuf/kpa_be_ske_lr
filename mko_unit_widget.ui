@@ -239,7 +239,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>7</pointsize>
+     <pointsize>8</pointsize>
     </font>
    </property>
    <property name="verticalScrollBarPolicy">

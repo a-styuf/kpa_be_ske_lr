@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1222</width>
+    <width>1218</width>
     <height>680</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="SKETab">
        <attribute name="title">
@@ -1234,7 +1234,7 @@
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
+                 <width>25</width>
                  <height>25</height>
                 </size>
                </property>
@@ -1542,28 +1542,19 @@
              </item>
              <item row="1" column="0" colspan="2">
               <layout class="QHBoxLayout" name="horizontalLayout_4">
-               <property name="sizeConstraint">
-                <enum>QLayout::SetMinimumSize</enum>
-               </property>
                <item>
                 <widget class="QLabel" name="adcPeriodLabel">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
                  <property name="minimumSize">
                   <size>
-                   <width>153</width>
+                   <width>100</width>
                    <height>0</height>
                   </size>
                  </property>
                  <property name="text">
-                  <string>Интервал опроса, с:</string>
+                  <string>Интервал циклического опроса, с:</string>
                  </property>
                  <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </item>
@@ -1851,7 +1842,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="minimumSize">
              <size>
-              <width>760</width>
+              <width>750</width>
               <height>100</height>
              </size>
             </property>
@@ -1869,8 +1860,8 @@ p, li { white-space: pre-wrap; }
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>758</width>
-               <height>564</height>
+               <width>748</width>
+               <height>576</height>
               </rect>
              </property>
             </widget>
@@ -2048,14 +2039,9 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="minimumSize">
              <size>
-              <width>243</width>
+              <width>250</width>
               <height>0</height>
              </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>8</pointsize>
-             </font>
             </property>
             <property name="horizontalScrollBarPolicy">
              <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -2070,7 +2056,7 @@ p, li { white-space: pre-wrap; }
              <number>150</number>
             </attribute>
             <attribute name="horizontalHeaderMinimumSectionSize">
-             <number>40</number>
+             <number>50</number>
             </attribute>
             <attribute name="horizontalHeaderStretchLastSection">
              <bool>true</bool>
@@ -2108,17 +2094,9 @@ p, li { white-space: pre-wrap; }
               <string>Значение</string>
              </property>
              <property name="textAlignment">
-              <set>AlignLeading|AlignVCenter</set>
-             </property>
-            </column>
-            <item row="0" column="1">
-             <property name="text">
-              <string/>
-             </property>
-             <property name="textAlignment">
               <set>AlignCenter</set>
              </property>
-            </item>
+            </column>
            </widget>
           </item>
          </layout>

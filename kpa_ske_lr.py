@@ -6,7 +6,7 @@ import threading
 
 class Data:
     def __init__(self):
-        self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH06VN4D"])
+        self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH06VN4D", "AH06VN4E"])
         self.serial.open_id()
         self.adc_name = ["КС, Ом", "АМКО, В", "Норма ЦМ, В", "КПБЭ, В",
                          "U БЭ, В", "I БЭ, мА", "Канал 6, кв", "Канал 7, кв",
@@ -30,9 +30,9 @@ class Data:
         # цветовая схема:  ниже нижней границы - между нижней и верхней - выше верхней - нет данных
         self.adc_color = [["lightcoral", "palegreen", "palegreen", "ghostwhite"] for i in range(len(self.adc_name))]
         self.adc_color[0] = ["palegreen", "lightcoral", "lightcoral", "ghostwhite"]  # KC
-        self.adc_color[1] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # AMKO
-        self.adc_color[2] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # НЦМ
-        self.adc_color[3] = ["mediumturquoise", "lightcoral", "palegreen", "ghostwhite"]  # КПБЭ
+        self.adc_color[1] = ["palegreen", "lightcoral", "mediumturquoise", "ghostwhite"]  # AMKO
+        self.adc_color[2] = ["palegreen", "lightcoral", "mediumturquoise", "ghostwhite"]  # НЦМ
+        self.adc_color[3] = ["palegreen", "lightcoral", "mediumturquoise", "ghostwhite"]  # КПБЭ
         # ## GPIO ## #
         self.gpio_a, self.gpio_b = 0x00, 0x00
         # ## MKO ## #
