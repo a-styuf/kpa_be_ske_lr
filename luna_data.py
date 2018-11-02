@@ -14,6 +14,10 @@ def frame_parcer(frame):
     data = []
     if frame[0] == 0x0FF1:  # проверка на метку кадра
         if frame[1] == 0x0C61:  # Системный кадр
+            operating_time = [((frame[19] << 16) + frame[20])//3600,  # hour
+                              (((frame[19] << 16) + frame[20])//60) % 60,  # min
+                              ((frame[19] << 16) + frame[20]) % 60   # sec
+                              ]
             #
             data.append(["Метка кадра", "0x%04X" % frame[0]])
             data.append(["Определитель", "0x%04X" % frame[1]])
@@ -24,18 +28,25 @@ def frame_parcer(frame):
             data.append(["Ток 2, мА", "%d" % frame[6]])
             data.append(["Ток 3, мА", "%d" % frame[7]])
             data.append(["Ток 4, мА", "%d" % frame[8]])
+            #
             data.append(["Указатель чтения", "%d" % frame[9]])
             data.append(["Указатель записи", "%d" % frame[10]])
+            #
             data.append(["Ошибки МКО", "%d" % frame[11]])
-            data.append(["Счетчик включений", "%d" % ((frame[12] >> 8) & 0xFF)])
+            data.append(["Счетчик включений", "%d" % (frame[12] >> 8)])
             data.append(["Рабочий комплект", "%d" % (frame[12] & 0xFF)])
+            #
             data.append(["Разность времени, c", "%d" % ((frame[13] << 16) + frame[14])])
             data.append(["Кол-во синхрон., шт", "%d" % frame[15]])
+
             data.append(["Ошибки ВШ", "%d" % ((frame[16] >> 8) & 0xFF)])
             data.append(["Неответы ВШ", "%d" % ((frame[16]) & 0xFF)])
             data.append(["Статус работы ВШ", "0х%02X" % ((frame[17] >> 8) & 0xFF)])
             data.append(["Статус неответов ВШ", "0х%02X" % (frame[17] & 0xFF)])
+
             data.append(["Температура", "%d" % frame[18]])
+            operating_time = (frame[19] << 16) + frame[20]
+            data.append(["Время наработки", "{0[0]:02d}:{0[1]:02d}:{0[2]:02d}".format(_int_to_time(operating_time))])
             #
             data.append(["CRC-16", "0x%04X" % crc16.calc(frame, 32)])
             pass
@@ -91,6 +102,16 @@ def frame_parcer(frame):
             data.append(["CRC-16", "0x%04X" % crc16.calc(frame, 32)])
             pass
         elif frame[1] == 0x0C69:  # ДЭП
+            #
+            data.append(["Метка кадра", "0x%04X" % frame[0]])
+            data.append(["Определитель", "0x%04X" % frame[1]])
+            data.append(["Номер кадра, шт", "%d" % frame[2]])
+            data.append(["Время кадра, с", "%d" % ((frame[3] << 16) + frame[4])])
+            #
+            for i in range(6):
+                pass
+            #
+            data.append(["CRC-16", "0x%04X" % crc16.calc(frame, 32)])
             pass
         elif frame[1] == 0x0C6A:  # БДЭП
             pass
@@ -102,3 +123,7 @@ def frame_parcer(frame):
     else:
         data.append(["Данные не распознаны", "0"])
     return data
+
+
+def _int_to_time(sec):
+    return [sec//3600, (sec//60) % 60, sec % 60]

@@ -50,12 +50,21 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.mkoPollingPBar.setValue(0)
         self.setLayout(self.units_widgets)
         # привязка сигналов к кнопкам
+        #
         self.AddUnitPButt.clicked.connect(self.units_widgets.add_unit)
         self.DltUnitPButt.clicked.connect(self.dlt_unit)
         self.DltAllUnitsPButt.clicked.connect(self.units_widgets.delete_all_units)
-        self.mkoPollingPButt.clicked.connect(self.mko_polling)
+        #
         self.LoadCfgPButt.clicked.connect(self.load_cfg)
         self.SaveCfgPButt.clicked.connect(self.save_cfg)
+        #
+        self.mkoPollingPButt.clicked.connect(self.mko_polling)
+        #
+        self.cycleStartPButt.clicked.connect(self.start_mko_cycle)
+        self.cycleStopPButt.clicked.connect(self.stop_mko_cycle)
+        self.cycleTimer = QtCore.QTimer()
+        self.cycleTimer.timeout.connect(self.start_mko_cycle)
+        self.cycle_step_count = 0
         # СКЭ #
         # Питание, КУ
         self.SKE_powOnPButt.clicked.connect(self.kpa.power_on)
@@ -84,6 +93,28 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
                 self.mkoPollingPBar.setValue(100 * i / len(self.units_widgets.unit_list))
                 QtCore.QCoreApplication.processEvents()
         self.mkoPollingPBar.setValue(100)
+
+    def start_mko_cycle(self):
+        unit_num = len(self.units_widgets.unit_list)
+        if self.cycle_step_count == 0:
+            self.cycle_step_count = self.cycleNumSBox.value() * unit_num
+        else:
+            self.cycle_step_count -= 1
+        period = self.cycleIntervalSBox.value()
+        elapsed_time = period * self.cycle_step_count
+        self.cycleElapsedTimeTEdit.setTime(QtCore.QTime(0, 0).addSecs(elapsed_time))
+        #
+        self.units_widgets.unit_list[self.cycle_step_count % unit_num].action()
+        #
+        self.cyclePBar.setValue(100 * (self.cycleNumSBox.value() * unit_num) / self.cycle_step_count)
+        self.cycleTimer.start(period*1000)
+        pass
+
+    def stop_mko_cycle(self):
+        self.cyclePBar.setValue(0)
+        self.cycleTimer.stop()
+        self.cycle_step_count = 0
+        pass
 
     def dlt_unit(self):
         n = self.DltUnitNumSBox.value()

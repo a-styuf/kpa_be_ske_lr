@@ -30,7 +30,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="SKETab">
        <attribute name="title">
@@ -1869,6 +1869,39 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout_6">
+            <item row="14" column="1">
+             <widget class="QSpinBox" name="cycleNumSBox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+              <property name="value">
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+            <item row="13" column="1">
+             <widget class="QSpinBox" name="cycleIntervalSBox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>600</number>
+              </property>
+              <property name="value">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item row="16" column="0" colspan="2">
+             <widget class="QProgressBar" name="cyclePBar">
+              <property name="value">
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
             <item row="7" column="0" colspan="2">
              <widget class="QPushButton" name="LoadCfgPButt">
               <property name="sizePolicy">
@@ -1891,7 +1924,7 @@ p, li { white-space: pre-wrap; }
             <item row="1" column="1">
              <widget class="QSpinBox" name="DltUnitNumSBox">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -1917,8 +1950,8 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QPushButton" name="DltUnitPButt">
+            <item row="8" column="0" colspan="2">
+             <widget class="QPushButton" name="SaveCfgPButt">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1927,12 +1960,31 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="minimumSize">
                <size>
-                <width>60</width>
-                <height>25</height>
+                <width>130</width>
+                <height>0</height>
                </size>
               </property>
               <property name="text">
-               <string>Удалить</string>
+               <string>Сохранить</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <widget class="QPushButton" name="AddUnitPButt">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>130</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Добавить</string>
               </property>
              </widget>
             </item>
@@ -1955,26 +2007,7 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="8" column="0" colspan="2">
-             <widget class="QPushButton" name="SaveCfgPButt">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>130</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>Сохранить</string>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="0" colspan="2">
+            <item row="18" column="0" colspan="2">
              <spacer name="verticalSpacer">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -1987,8 +2020,15 @@ p, li { white-space: pre-wrap; }
               </property>
              </spacer>
             </item>
-            <item row="0" column="0" colspan="2">
-             <widget class="QPushButton" name="AddUnitPButt">
+            <item row="5" column="0" colspan="2">
+             <widget class="QProgressBar" name="mkoPollingPBar">
+              <property name="value">
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="DltUnitPButt">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1997,19 +2037,19 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="minimumSize">
                <size>
-                <width>130</width>
-                <height>0</height>
+                <width>60</width>
+                <height>25</height>
                </size>
               </property>
               <property name="text">
-               <string>Добавить</string>
+               <string>Удалить</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="0" colspan="2">
-             <widget class="QProgressBar" name="mkoPollingPBar">
-              <property name="value">
-               <number>0</number>
+            <item row="4" column="0" colspan="2">
+             <widget class="QPushButton" name="mkoPollingPButt">
+              <property name="text">
+               <string>Разовый опрос всех команд</string>
               </property>
              </widget>
             </item>
@@ -2020,10 +2060,58 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
-            <item row="4" column="0" colspan="2">
-             <widget class="QPushButton" name="mkoPollingPButt">
+            <item row="11" column="0" colspan="2">
+             <widget class="QPushButton" name="cycleStartPButt">
               <property name="text">
-               <string>Опрос всего по очереди</string>
+               <string>Запуск циклического опроса</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="0" colspan="2">
+             <widget class="Line" name="line_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="17" column="0" colspan="2">
+             <widget class="QPushButton" name="cycleStopPButt">
+              <property name="text">
+               <string>Оставновить цикл</string>
+              </property>
+             </widget>
+            </item>
+            <item row="14" column="0">
+             <widget class="QLabel" name="cycleNumLabel">
+              <property name="text">
+               <string>Количество, шт</string>
+              </property>
+             </widget>
+            </item>
+            <item row="13" column="0">
+             <widget class="QLabel" name="cycleIntervalLabel">
+              <property name="text">
+               <string>Интервал, с</string>
+              </property>
+             </widget>
+            </item>
+            <item row="15" column="0">
+             <widget class="QLabel" name="cycleFullTimeLabel">
+              <property name="text">
+               <string>Осталось , c</string>
+              </property>
+             </widget>
+            </item>
+            <item row="15" column="1">
+             <widget class="QTimeEdit" name="cycleElapsedTimeTEdit">
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::NoButtons</enum>
+              </property>
+              <property name="displayFormat">
+               <string>H:mm:ss</string>
               </property>
              </widget>
             </item>
