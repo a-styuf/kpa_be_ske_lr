@@ -54,13 +54,13 @@
     </rect>
    </property>
    <property name="minimum">
-    <number>1</number>
+    <number>0</number>
    </property>
    <property name="maximum">
     <number>32</number>
    </property>
    <property name="value">
-    <number>1</number>
+    <number>0</number>
    </property>
   </widget>
   <widget class="QLabel" name="AWLabel">
@@ -109,7 +109,7 @@
     <number>1</number>
    </property>
    <property name="maximum">
-    <number>254</number>
+    <number>32</number>
    </property>
    <property name="value">
     <number>22</number>
@@ -361,6 +361,17 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>NameLine</tabstop>
+  <tabstop>AddrSpinBox</tabstop>
+  <tabstop>SubaddrSpinBox</tabstop>
+  <tabstop>LengSpinBox</tabstop>
+  <tabstop>CWLine</tabstop>
+  <tabstop>AWLine</tabstop>
+  <tabstop>RWBox</tabstop>
+  <tabstop>ActionButton</tabstop>
+  <tabstop>DataTable</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

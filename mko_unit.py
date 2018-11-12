@@ -5,7 +5,7 @@ import luna_data
 
 
 class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
-    action_signal = QtCore.pyqtSignal()
+    action_signal = QtCore.pyqtSignal([list])
 
     def __init__(self, parent, **kw):
         # Это здесь нужно для доступа к переменным, методам
@@ -17,7 +17,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         self.name = "..."
         for key in sorted(kw):
             if key == "mko":
-                self.mko = kw.pop(key)
+                self.mko_dev = kw.pop(key)
             elif key == "num":
                 self.num = kw.pop(key)
             elif key == "name":
@@ -40,6 +40,10 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         self.leng = 0
         self.data = [0, 0]
         self.table_data = [["Нет данных", ""]]
+        #
+        self.total_cnt = 1
+        self.aw_err_cnt = 0
+        self.time_out = 0
         #
         self.load_cfg()
         #
@@ -88,36 +92,51 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         return self.cfg_dict
 
     def write(self):
-        if self.mko.serial.is_open:
-            self.mko.send_to_rt(int(self.AddrSpinBox.value()), int(self.SubaddrSpinBox.value()),
-                                self.get_data(), int(self.LengSpinBox.value()))
-            self.MKOTimer.singleShot(200, self.set_data_to_unit)
+        if self.mko_dev.serial.is_open:
+            self.ActionButton.setEnabled(False)
+            self.mko_dev.reset_mko_data()  # фугкция для забывания старых данных
+            self.mko_dev.send_to_rt(int(self.AddrSpinBox.value()), int(self.SubaddrSpinBox.value()),
+                                    self.get_data(), int(self.LengSpinBox.value()))
+            self.MKOTimer.singleShot(50, self.set_data_to_unit)
+            self.time_out = 4
             self.state = 0
         else:
             self.state = 1
         pass
 
     def read(self):
-        if self.mko.serial.is_open:
-            self.mko.read_from_rt(int(self.AddrSpinBox.value()), int(self.SubaddrSpinBox.value()),
-                                  int(self.LengSpinBox.value()))
-            self.MKOTimer.singleShot(200, self.set_data_to_unit)
+        if self.mko_dev.serial.is_open:
+            self.ActionButton.setEnabled(False)
+            self.mko_dev.reset_mko_data()
+            self.mko_dev.read_from_rt(int(self.AddrSpinBox.value()), int(self.SubaddrSpinBox.value()),
+                                      int(self.LengSpinBox.value()))
+            self.MKOTimer.singleShot(50, self.set_data_to_unit)
+            self.time_out = 4
             self.state = 0
         else:
             self.state = 1
         pass
 
     def set_data_to_unit(self):
-        cw, aw, data = self.mko.get_mko_data()
+        self.total_cnt += 1
+        cw, aw, data = self.mko_dev.get_mko_data()
         self.CWLine.setText("0x{:04X}".format(cw))
+        self.AWLine.setText("0x{:04X}".format(aw))
         if aw != 0x0000:
-            self.AWLine.setText("0x{:04X}".format(aw))
             self.insert_data(data)
             self.state = 0
+            self.get_data()
             self.table_data = luna_data.frame_parcer(self.data)
-            self.action_signal.emit()
+            # при приеме инициируем сигнал, который запустит отображение таблицы данных
+            self.action_signal.emit(self.table_data)
         else:
+            if self.time_out != 0x00:
+                self.MKOTimer.singleShot(100, self.set_data_to_unit)
+                self.time_out -= 1
+                return
+            self.aw_err_cnt += 1
             self.state = 2
+        self.ActionButton.setEnabled(True)
         self.state_check()
         pass
 
@@ -166,7 +185,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
 
 
 class Widgets(QtWidgets.QVBoxLayout):
-    action = QtCore.pyqtSignal()
+    action = QtCore.pyqtSignal([list])
 
     def __init__(self, parent, **kw):
         super().__init__(parent)
@@ -175,7 +194,9 @@ class Widgets(QtWidgets.QVBoxLayout):
                 self.mko = kw.pop(key)
         self.parent = parent
         self.unit_list = []
-        self.table_data = []
+        #
+        self.total_cnt = 1
+        self.aw_err_cnt = 0
         pass
 
     def add_unit(self):
@@ -185,10 +206,14 @@ class Widgets(QtWidgets.QVBoxLayout):
         widget_to_add.action_signal.connect(self.multi_action)
         pass
 
-    def multi_action(self):
+    def multi_action(self, table_data):
         sender = self.sender()
-        self.table_data = sender.table_data
-        self.action.emit()
+        #
+        self.aw_err_cnt += sender.aw_err_cnt
+        self.total_cnt += sender.total_cnt
+        # print("Error level, %%: %.3f" % ((100 * self.aw_err_cnt) / self.total_cnt))
+        #
+        self.action.emit(table_data)
 
     def delete_unit_by_num(self, n):
         try:

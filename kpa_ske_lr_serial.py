@@ -11,9 +11,10 @@ class MySerial(serial.Serial):
         serial.Serial.__init__(self)
         self.serial_numbers = []  # это лист возможных серийников!!! (не строка)
         self.baudrate = 115200
-        self.timeout = 0.1
+        self.timeout = 0.03
         self.port = "COM0"
         self.row_data = b""
+        self.read_timeout = 0.3
         for key in sorted(kw):
             if key == "serial_numbers":
                 self.serial_numbers = kw.pop(key)
@@ -98,6 +99,10 @@ class MySerial(serial.Serial):
             data_to_send = self.dts_form(com=0x08, data=data)
         elif req_type == "read_ib":
             data_to_send = self.dts_form(com=0x09)
+        elif req_type == "dep_24v":
+            data_to_send = self.dts_form(com=0x0A, data=data)
+        elif req_type == "power":
+            data_to_send = self.dts_form(com=0x0B, data=data)
         else:
             data_to_send = self.dts_form(com=0x01)
         with self.com_send_lock:
@@ -124,13 +129,10 @@ class MySerial(serial.Serial):
         return log
 
     def thread_function(self):
-        buf = bytearray(b"")
-        read_data = bytearray(b"")
-        comm = 0x00
-        time.sleep(0.010)
         while True:
             nansw = 0
             if self.is_open is True:
+                time.sleep(0.010)
                 # отправка команд
                 if self.com_queue:
                     with self.com_send_lock:
@@ -145,41 +147,53 @@ class MySerial(serial.Serial):
                         pass
                     with self.log_lock:
                         self.log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
-                # прием команд
-                try:
-                    read_data = self.read(128)
-                    self.read_data = read_data
-                except (TypeError, serial.serialutil.SerialException, AttributeError):
-                    self.state = -3
-                    # read_data = bytearray(b"")
-                    pass
-                if read_data:
-                    with self.log_lock:
-                        self.log_buffer.append(get_time() + bytes_array_to_str(read_data))
-                    read_data = buf + bytes(read_data)  # прибавляем к новому куску старый кусок
-                    # print(bytes_array_to_str(read_data))
-                    if len(read_data) >= 8:
-                        if read_data[0] == 0x00:
-                            if len(read_data) >= read_data[5] + 8:  # проверка на запрос
-                                # print(hex(crc16.calc(read_data,  read_data[5] + 6)))
-                                if 1:  # crc16.calc_to_list(read_data,  read_data[5] + 8) == [0, 0]: todo:
-                                    if comm == read_data[4]:
-                                        nansw -= 1
-                                        self.state = 1
-                                        with self.ans_data_lock:
-                                            self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
-                                            # print(self.answer_data)
-                                    else:
-                                        self.state = -3
+                        # print("write: %.3f" % time.clock())
+                    # прием ответа: ждем ответа timout ms
+                    buf = bytearray(b"")
+                    read_data = bytearray(b"")
+                    time_start = time.clock()
+                    while True:
+                        time.sleep(0.01)
+                        timeout = time.clock() - time_start
+                        # print("%.3f" % timeout)
+                        if timeout >= self.read_timeout:
+                            break
+                        try:
+                            read_data = self.read(128)
+                            self.read_data = read_data
+                        except (TypeError, serial.serialutil.SerialException, AttributeError):
+                            self.state = -3
+                            # read_data = bytearray(b"")
+                            pass
+                        if read_data:
+                            with self.log_lock:
+                                self.log_buffer.append(get_time() + bytes_array_to_str(read_data))
+                                # print("read: %.3f" % time.clock())
+                            read_data = buf + bytes(read_data)  # прибавляем к новому куску старый кусок
+                            # print(bytes_array_to_str(read_data))
+                            if len(read_data) >= 8:
+                                if read_data[0] == 0x00:
+                                    if len(read_data) >= read_data[5] + 8:  # проверка на запрос
+                                        # print(hex(crc16.calc(read_data,  read_data[5] + 6)))
+                                        if 1:  # crc16.calc_to_list(read_data,  read_data[5] + 8) == [0, 0]: todo:
+                                            if comm == read_data[4]:
+                                                nansw -= 1
+                                                self.state = 1
+                                                with self.ans_data_lock:
+                                                    self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
+                                                    # print(self.answer_data)
+                                                break
+                                            else:
+                                                self.state = -3
+                                else:
+                                    buf = read_data[1:]
+                                    read_data = bytearray(b"")
+                            else:
+                                buf = read_data
+                                read_data = bytearray(b"")
+                            pass
                         else:
-                            buf = read_data[1:]
-                            read_data = bytearray(b"")
-                    else:
-                        buf = read_data
-                        read_data = bytearray(b"")
-                    pass
-                else:
-                    pass
+                            pass
             else:
                 pass
             if nansw == 1:
