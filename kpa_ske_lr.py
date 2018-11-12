@@ -42,6 +42,8 @@ class Data:
         self.ske_KPBE = [0, "ghostwhite"]
         self.ske_NormCM = [0, "ghostwhite"]
         self.ske_AMKO = [0, "ghostwhite"]
+        self.graph_data = [[], [], []]
+        self.max_point = 10000
         # ## GPIO ## #
         self.gpio_a, self.gpio_b = 0x00, 0x00
         # ## MKO ## #
@@ -87,9 +89,10 @@ class Data:
         self.test_color_teamplate[4] = ["palegreen", "lightcoral", "mediumturquoise", "ghostwhite"]  # НЦМ
         self.test_color_teamplate[5] = ["palegreen", "lightcoral", "mediumturquoise", "ghostwhite"]  # КПБЭ
         self.test_color = [color[3] for color in self.test_color_teamplate]
-        self.cm_test_status = 0
-        self.mpp_test_status = 0
-        self.dep_test_status = 0
+        self.ske_test_status = 0
+        #
+        self.test_thread = threading.Thread(target=self.cm_test_algorithm)
+        self.test_lock = threading.Lock()
         #
         self._close_event = threading.Event()
         self.parc_thread = threading.Thread(target=self.parc_data, args=(), daemon=True)
@@ -206,7 +209,20 @@ class Data:
         self.ske_KPBE = [adc_data_tmp[3], adc_color[3]]
         self.ske_NormCM = [adc_data_tmp[2], adc_color[2]]
         self.ske_AMKO = [adc_data_tmp[1], adc_color[1]]
+        self.form_graph_data()
         return adc_data_tmp, adc_color
+
+    def form_graph_data(self):
+        try:
+            self.graph_data[0].append(time.clock())
+            self.graph_data[1].append(self.ske_U[0])
+            self.graph_data[2].append(self.ske_W[0])
+            while len(self.graph_data[0]) > 10000:
+                self.graph_data[0].pop(0)
+                self.graph_data[1].pop(0)
+                self.graph_data[2].pop(0)
+        except Exception as error:
+            print(error)
 
     def reset_mko_data(self):
         with self.serial.ans_data_lock:
@@ -232,16 +248,21 @@ class Data:
             subaddr = i + 1
             self.read_from_rt(self.mko_addr, 0x0001 + i, 32)
             time.sleep(0.5)
-            table_data = luna_data.frame_parcer(self.get_mko_data()[2])
-            for var in table_data:
-                if "Среднее" in var[0]:
-                    if subaddr == 1: self._set_test_data("Среднее МПП1", var[1])
-                    elif subaddr == 2: self._set_test_data("Среднее МПП2", var[1])
-                    elif subaddr == 3: self._set_test_data("Среднее ДРП", var[1])
-                    elif subaddr == 4: self._set_test_data("Среднее ДНП", var[1])
-                    elif subaddr == 5: self._set_test_data("Среднее РП1", var[1])
-                    elif subaddr == 6: self._set_test_data("Среднее РП2", var[1])
-                    break
+            cw, aw, data = self.get_mko_data()
+            if aw == cw & 0xF800:
+                table_data = luna_data.frame_parcer(data)
+                for var in table_data:
+                    if "Среднее" in var[0]:
+                        if subaddr == 1: self._set_test_data("Среднее МПП1", var[1])
+                        elif subaddr == 2: self._set_test_data("Среднее МПП2", var[1])
+                        elif subaddr == 3: self._set_test_data("Среднее ДРП", var[1])
+                        elif subaddr == 4: self._set_test_data("Среднее ДНП", var[1])
+                        elif subaddr == 5: self._set_test_data("Среднее РП1", var[1])
+                        elif subaddr == 6: self._set_test_data("Среднее РП2", var[1])
+                        break
+            else:
+                return -1
+        return 1
 
     def dep_read_algorithm(self):
         # # задаем воздействие с КПА
@@ -250,61 +271,93 @@ class Data:
         time.sleep(10)
         self.read_from_rt(self.mko_addr, 0x0009, 32)
         time.sleep(0.5)
-        table_data = luna_data.frame_parcer(self.get_mko_data()[2])
-        for var in table_data:
-            if "Поле ДЭП1" in var[0]: self._set_test_data("Поле ДЭП1", var[1])
-            elif "Частота ДЭП1" in var[0]: self._set_test_data("Частота ДЭП1", var[1])
-            elif "Температура ДЭП1" in var[0]: self._set_test_data("Температура ДЭП1", var[1])
-            elif "Поле ДЭП2" in var[0]: self._set_test_data("Поле ДЭП2", var[1])
-            elif "Частота ДЭП2" in var[0]: self._set_test_data("Частота ДЭП2, Гц", var[1])
-            elif "Температура ДЭП2" in var[0]: self._set_test_data("Температура ДЭП2", var[1])
+        cw, aw, data = self.get_mko_data()
+        table_data = luna_data.frame_parcer(data)
+        if aw == cw & 0xF800:
+            for var in table_data:
+                if "Поле ДЭП1" in var[0]: self._set_test_data("Поле ДЭП1", var[1])
+                elif "Частота ДЭП1" in var[0]: self._set_test_data("Частота ДЭП1", var[1])
+                elif "Температура ДЭП1" in var[0]: self._set_test_data("Температура ДЭП1", var[1])
+                elif "Поле ДЭП2" in var[0]: self._set_test_data("Поле ДЭП2", var[1])
+                elif "Частота ДЭП2" in var[0]: self._set_test_data("Частота ДЭП2, Гц", var[1])
+                elif "Температура ДЭП2" in var[0]: self._set_test_data("Температура ДЭП2", var[1])
+            return 1
+        else:
+            return -1
 
     def sys_cm_read_algorithm(self):
         # # читаем системный кадр
         self.read_from_rt(self.mko_addr, 0x000F, 32)
         time.sleep(0.5)
-        try:
-            table_data = luna_data.frame_parcer(self.get_mko_data()[2])
-        except Exception as error:
-            print(error)
-        for var in table_data:
-            if "Ток ЦМ" in var[0]: self._set_test_data("Ток ЦМ", var[1])
-            elif "Ток МПП1-2" in var[0]: self._set_test_data("Ток МПП1-2", var[1])
-            elif "Ток ДРП, ДНП" in var[0]: self._set_test_data("Ток МПП3-4", var[1])
-            elif "Ток МДЭП" in var[0]: self._set_test_data("Ток МДЭП", var[1])
-            elif "Ошибки ВШ" in var[0]: self._set_test_data("Ошибки", var[1])
-            elif "Неответы ВШ" in var[0]: self._set_test_data("Неответы", var[1])
-            elif "Время наработки" in var[0]: self._set_test_data("Наработка", var[1])
-            elif "Интервал измерения" in var[0]: self._set_test_data("Измерительный интервал", var[1])
+        cw, aw, data = self.get_mko_data()
+        table_data = luna_data.frame_parcer(data)
+        if aw == cw & 0xF800:
+            for var in table_data:
+                if "Ток ЦМ" in var[0]: self._set_test_data("Ток ЦМ", var[1])
+                elif "Ток МПП1-2" in var[0]: self._set_test_data("Ток МПП1-2", var[1])
+                elif "Ток ДРП, ДНП" in var[0]: self._set_test_data("Ток МПП3-4", var[1])
+                elif "Ток МДЭП" in var[0]: self._set_test_data("Ток МДЭП", var[1])
+                elif "Ошибки ВШ" in var[0]: self._set_test_data("Ошибки", var[1])
+                elif "Неответы ВШ" in var[0]: self._set_test_data("Неответы", var[1])
+                elif "Время наработки" in var[0]: self._set_test_data("Наработка", var[1])
+                elif "Интервал измерения" in var[0]: self._set_test_data("Измерительный интервал", var[1])
+            return 1
+        else:
+            return -1
 
     def cm_test_algorithm(self):
-        # инициализируем ЦМ
-        self.send_mko_comm_message(c_type="init_cm")
-        time.sleep(20)
-        # устанавливаем интервал измерения на 1 сек
-        self.send_mko_comm_message(c_type="meas_interval", data=[1])
-        time.sleep(0.3)
-        # подаем водздействия и читаем данные МПП и ДЭП
-        self.mpp_read_algorithm()
-        self.dep_read_algorithm()
-        # читаем системный кадр ЦМ
-        self.sys_cm_read_algorithm()
-        # чтение данных АЦП КПА
-        self.get_adc()
-        time.sleep(0.3)
-        self.form_kpa_data()
         try:
+            if self.serial.state != 1:
+                self.ske_test_status = -1
+                return
+            # инициализируем ЦМ
+            self.send_mko_comm_message(c_type="init_cm")
+            time.sleep(20)
+            # устанавливаем интервал измерения на 1 сек
+            self.send_mko_comm_message(c_type="meas_interval", data=[1])
+            time.sleep(10)
+            # подаем водздействия и читаем данные МПП и ДЭП
+            if self.mpp_read_algorithm() < 0:
+                self.ske_test_status = -1
+                return
+            if self.dep_read_algorithm() < 0:
+                self.ske_test_status = -1
+                return
+            # читаем системный кадр ЦМ
+            if self.sys_cm_read_algorithm() < 0:
+                self.ske_test_status = -1
+                return
+            # чтение данных АЦП КПА
+            if self.serial.state != 1:
+                self.ske_test_status = -1
+                return
+            self.get_adc()
+            time.sleep(0.3)
+            self.form_kpa_data()
             self._set_test_data("Потребление", "%.2f" % self.ske_W[0])
             self._set_test_data("Напряжение", "%.2f" % self.ske_U[0])
             self._set_test_data("Ток БЭ", "%.2f" % self.ske_I[0])
             self._set_test_data("КПБЭ", "%.1f" % self.ske_KPBE[0])
             self._set_test_data("НормЦМ", "%.1f" % self.ske_NormCM[0])
             self._set_test_data("АМКО", "%.1f" % self.ske_AMKO[0])
+            # устанавливаем интервал измерения на 10 сек
+            self.send_mko_comm_message(c_type="meas_interval", data=[10])
+            time.sleep(0.3)
+            self.ske_test_status = 1
         except Exception as error:
             print(error)
-        # устанавливаем интервал измерения на 10 сек
-        self.send_mko_comm_message(c_type="meas_interval", data=[10])
-        time.sleep(0.3)
+        print("finish")
+
+    def ske_test_start(self):
+        if self.test_thread.is_alive():
+            self.ske_test_status = -1
+            return
+        else:
+            self.test_thread = threading.Thread(target=self.cm_test_algorithm)
+            self.test_thread.start()
+            self.ske_test_status = 0
+            return
+        pass
 
     def _get_adc_data_color_scheme(self, channel_num):
         if self.serial.is_open:

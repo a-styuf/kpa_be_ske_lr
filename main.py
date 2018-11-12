@@ -7,6 +7,7 @@ import mko_unit
 import time
 import configparser
 import os
+import ske_graph
 
 
 class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
@@ -89,6 +90,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
                                                     data=[240]))
         # Тестирование СКЭ
         self.SKE_SkeTestPButt.clicked.connect(self.ske_test)
+        self.test_file = None
+        # Графики напряжения и мощности
+        self.ske_graph_layout = ske_graph.Layout(self.SKE_GrView)
+        self.SKE_GrView.setLayout(self.ske_graph_layout)
         # ## Общие ## #
         self.logsUpdatePButt.clicked.connect(self.create_log_file)
         self.connectPButt.clicked.connect(self.kpa.reconnect)
@@ -241,36 +246,80 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
 
     # СКЭ #
     def ske_test(self):
-        testing_status, testing_color = "Норма", "palegreen"
-        # пишем статус начала проверки
-        self.SKE_SkeTestLEdit.setText("Тестирование...")
-        self.SKE_SkeTestLEdit.setStyleSheet("background-color: " + "gold")
-        #
-        self.SKE_SkeTestPButt.setEnabled(False)
-        self.SKE_testResultTWidget.setRowCount(0)
-        QtCore.QCoreApplication.processEvents()
-        self.kpa.cm_test_algorithm()
-        self.SKE_testResultTWidget.setRowCount(len(self.kpa.test_data_name))
-        for row in range(len(self.kpa.test_data_name)):
-            try:
-                table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data_name[row])
-                self.SKE_testResultTWidget.setItem(row, 0, table_item)
-                table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data[row])
-                # print(self.kpa.test_data[row], type(self.kpa.test_data[row]))
-                table_item.setBackground(QColor(self.kpa.test_color[row]))
-                if self.kpa.test_color[row] == "lightcoral":
-                    testing_status, testing_color = "Не норма", "lightcoral"
-                self.SKE_testResultTWidget.setItem(row, 1, table_item)
-            except Exception as error:
-                print(error)
-        self.SKE_SkeTestPButt.setEnabled(True)
-        # пишем статус окончания проверки
-        self.SKE_SkeTestLEdit.setText(testing_status)
-        self.SKE_SkeTestLEdit.setStyleSheet("background-color: " + testing_color)
+        try:
+            self.SKE_SkeTestPButt.setEnabled(False)
+            #
+            testing_status, testing_color = "Норма", "palegreen"
+            # пишем статус начала проверки
+            self.SKE_SkeTestLabel.setText("Тестирование...")
+            self.SKE_SkeTestLabel.setStyleSheet("background-color: " + "gold")
+            #
+            self.SKE_testResultTWidget.setRowCount(0)
+            #
+            self.kpa.ske_test_start()
+            while self.kpa.ske_test_status == 0:
+                QtCore.QCoreApplication.processEvents()
+            test_report_file_str = ""
+            if self.kpa.ske_test_status == -1:
+                self.SKE_SkeTestLabel.setText("Не норма")
+                self.SKE_SkeTestLabel.setStyleSheet("background-color: " + "lightcoral")
+                test_report_file_str += "Проблемы с подключением."
+            else:
+                self.SKE_testResultTWidget.setRowCount(len(self.kpa.test_data_name))
+                for row in range(len(self.kpa.test_data_name)):
+                    table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data_name[row])
+                    self.SKE_testResultTWidget.setItem(row, 0, table_item)
+                    table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data[row])
+                    # print(self.kpa.test_data[row], type(self.kpa.test_data[row]))
+                    table_item.setBackground(QColor(self.kpa.test_color[row]))
+                    self.SKE_testResultTWidget.setItem(row, 1, table_item)
+                    decision = "норма"
+                    if self.kpa.test_color[row] == "lightcoral":
+                        decision = "не норма"
+                        testing_status, testing_color = "Не норма", "lightcoral"
+                    test_report_file_str += self.kpa.test_data_name[row] + ";"
+                    test_report_file_str += self.kpa.test_data[row] + ";"
+                    test_report_file_str += decision + ";\n"
+                # пишем статус окончания проверки
+                self.SKE_SkeTestLabel.setText(testing_status)
+                self.SKE_SkeTestLabel.setStyleSheet("background-color: " + testing_color)
+            # Запишем файл с результатом опроса
+            self.write_test_data(test_report_file_str)
+            # обновление статуса
+            self.SKE_SkeTestPButt.setEnabled(True)
+        except Exception as error:
+            print(error)
 
+    def create_test_file(self):
+        dir_name = "Tests"
+        sub_dir_name = dir_name + "\\" + "Тест СКЭ-ЛР от " + time.strftime("%Y_%m_%d", time.localtime())
+        try:
+            os.makedirs(sub_dir_name)
+        except (OSError, AttributeError) as error:
+            pass
+        try:
+            if self.test_file:
+                self.test_file.close()
+        except (OSError, NameError, AttributeError) as error:
+            pass
+        file_name = sub_dir_name + "\\" + "Тест СКЭ-ЛР от " + time.strftime("%Y_%m_%d %H-%M-%S",
+                                                                            time.localtime()) + ".csv"
+        self.test_file = open(file_name, 'a')
+
+    def close_test_file(self):
+        try:
+            self.test_file.close()
+        except Exception as error:
+            print(error)
+        pass
+
+    def write_test_data(self, report_string=""):
+        self.create_test_file()
+        self.test_file.write(report_string.replace(".", ","))
+        self.close_test_file()
 
     # LOGs #
-    def create_log_file(self, file=None):
+    def create_log_file(self):
         dir_name = "Logs"
         sub_dir_name = dir_name + "\\" + "Лог КПА СКЭ-ЛР от " + time.strftime("%Y_%m_%d", time.localtime())
         try:
@@ -303,18 +352,18 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         all_text = self.LogTEdit.toPlainText()
         if len(all_text) > 100000:
             self.LogTEdit.clear()
-        # таблица для вкладки КПА
+        #
         adc_data, adc_color = self.kpa.form_kpa_data()
+        # графики
+        self.ske_graph_layout.plot_power_data(self.kpa.graph_data[0], self.kpa.graph_data[1], self.kpa.graph_data[2])
+        # таблица для вкладки КПА
         self.DataTable.setRowCount(len(adc_data))
         for row in range(len(adc_data)):
-            try:
-                table_item = QtWidgets.QTableWidgetItem(self.kpa.adc_name[row])
-                self.DataTable.setItem(row, 0, table_item)
-                table_item = QtWidgets.QTableWidgetItem("%.4G" % float(adc_data[row]))
-                table_item.setBackground(QColor(adc_color[row]))
-                self.DataTable.setItem(row, 1, table_item)
-            except IndexError:
-                pass
+            table_item = QtWidgets.QTableWidgetItem(self.kpa.adc_name[row])
+            self.DataTable.setItem(row, 0, table_item)
+            table_item = QtWidgets.QTableWidgetItem("%.4G" % float(adc_data[row]))
+            table_item.setBackground(QColor(adc_color[row]))
+            self.DataTable.setItem(row, 1, table_item)
         # Обновление параметров Параметры питания и СТМ-параметры вкладки СКЭ
         self.SKE_powUDSBox.setValue(self.kpa.ske_U[0])
         self.SKE_powUDSBox.setStyleSheet("background-color: " + self.kpa.ske_U[1])
@@ -335,6 +384,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
     def closeEvent(self, event):
         self.close()
         self.close_log_file()
+        self.close_test_file()
         pass
 
 

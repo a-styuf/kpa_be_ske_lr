@@ -129,79 +129,82 @@ class MySerial(serial.Serial):
         return log
 
     def thread_function(self):
-        while True:
-            nansw = 0
-            if self.is_open is True:
-                time.sleep(0.010)
-                # отправка команд
-                if self.com_queue:
-                    with self.com_send_lock:
-                        data_to_send = self.com_queue.pop(0)
-                        comm = data_to_send[4]
-                    try:
-                        self.write(bytes(data_to_send))
-                        nansw = 1
-                        # print(data_to_send)
-                    except serial.serialutil.SerialException:
-                        self.state = -3
-                        pass
-                    with self.log_lock:
-                        self.log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
-                        # print("write: %.3f" % time.clock())
-                    # прием ответа: ждем ответа timout ms
-                    buf = bytearray(b"")
-                    read_data = bytearray(b"")
-                    time_start = time.clock()
-                    while True:
-                        time.sleep(0.01)
-                        timeout = time.clock() - time_start
-                        # print("%.3f" % timeout)
-                        if timeout >= self.read_timeout:
-                            break
+        try:
+            while True:
+                nansw = 0
+                if self.is_open is True:
+                    time.sleep(0.010)
+                    # отправка команд
+                    if self.com_queue:
+                        with self.com_send_lock:
+                            data_to_send = self.com_queue.pop(0)
+                            comm = data_to_send[4]
                         try:
-                            read_data = self.read(128)
-                            self.read_data = read_data
-                        except (TypeError, serial.serialutil.SerialException, AttributeError):
+                            self.write(bytes(data_to_send))
+                            nansw = 1
+                            # print(data_to_send)
+                        except serial.serialutil.SerialException:
                             self.state = -3
-                            # read_data = bytearray(b"")
                             pass
-                        if read_data:
-                            with self.log_lock:
-                                self.log_buffer.append(get_time() + bytes_array_to_str(read_data))
-                                # print("read: %.3f" % time.clock())
-                            read_data = buf + bytes(read_data)  # прибавляем к новому куску старый кусок
-                            # print(bytes_array_to_str(read_data))
-                            if len(read_data) >= 8:
-                                if read_data[0] == 0x00:
-                                    if len(read_data) >= read_data[5] + 8:  # проверка на запрос
-                                        # print(hex(crc16.calc(read_data,  read_data[5] + 6)))
-                                        if 1:  # crc16.calc_to_list(read_data,  read_data[5] + 8) == [0, 0]: todo:
-                                            if comm == read_data[4]:
-                                                nansw -= 1
-                                                self.state = 1
-                                                with self.ans_data_lock:
-                                                    self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
-                                                    # print(self.answer_data)
-                                                break
-                                            else:
-                                                self.state = -3
+                        with self.log_lock:
+                            self.log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
+                            # print("write: %.3f" % time.clock())
+                        # прием ответа: ждем ответа timout ms
+                        buf = bytearray(b"")
+                        read_data = bytearray(b"")
+                        time_start = time.clock()
+                        while True:
+                            time.sleep(0.01)
+                            timeout = time.clock() - time_start
+                            # print("%.3f" % timeout)
+                            if timeout >= self.read_timeout:
+                                break
+                            try:
+                                read_data = self.read(128)
+                                self.read_data = read_data
+                            except (TypeError, serial.serialutil.SerialException, AttributeError):
+                                self.state = -3
+                                # read_data = bytearray(b"")
+                                pass
+                            if read_data:
+                                with self.log_lock:
+                                    self.log_buffer.append(get_time() + bytes_array_to_str(read_data))
+                                    # print("read: %.3f" % time.clock())
+                                read_data = buf + bytes(read_data)  # прибавляем к новому куску старый кусок
+                                # print(bytes_array_to_str(read_data))
+                                if len(read_data) >= 8:
+                                    if read_data[0] == 0x00:
+                                        if len(read_data) >= read_data[5] + 8:  # проверка на запрос
+                                            # print(hex(crc16.calc(read_data,  read_data[5] + 6)))
+                                            if 1:  # crc16.calc_to_list(read_data,  read_data[5] + 8) == [0, 0]: todo:
+                                                if comm == read_data[4]:
+                                                    nansw -= 1
+                                                    self.state = 1
+                                                    with self.ans_data_lock:
+                                                        self.answer_data.append([read_data[4], read_data[6:6+read_data[5]]])
+                                                        # print(self.answer_data)
+                                                    break
+                                                else:
+                                                    self.state = -3
+                                    else:
+                                        buf = read_data[1:]
+                                        read_data = bytearray(b"")
                                 else:
-                                    buf = read_data[1:]
+                                    buf = read_data
                                     read_data = bytearray(b"")
+                                pass
                             else:
-                                buf = read_data
-                                read_data = bytearray(b"")
-                            pass
-                        else:
-                            pass
-            else:
-                pass
-            if nansw == 1:
-                self.state = -3
-                self.nansw += 1
-            if self._close_event.is_set() is True:
-                self._close_event.clear()
-                return
+                                pass
+                else:
+                    pass
+                if nansw == 1:
+                    self.state = -3
+                    self.nansw += 1
+                if self._close_event.is_set() is True:
+                    self._close_event.clear()
+                    return
+        except Exception as error:
+            print(error)
         pass
 
 
