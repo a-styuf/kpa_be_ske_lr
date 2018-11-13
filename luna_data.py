@@ -127,8 +127,8 @@ def frame_parcer(frame):
                         a, b = mpp_calibr[i][1], mpp_calibr[i][2]
                         max_1 = ((frame[5 + j + 4*i] >> 0) & 0xFF)*(2**4)
                         max_2 = ((frame[5 + j + 4*i] >> 8) & 0xFF)*(2**4)
-                        U_max_1 = a*max_1 + b if max_1 != 0 else 0
-                        U_max_2 = a*max_2 + b if max_2 != 0 else 0
+                        U_max_1 = a*max_1 if max_1 != 0 else 0
+                        U_max_2 = a*max_2 if max_2 != 0 else 0
                         data.append(["U МПП%d@МПП%d, В" % (i+1, 2*j+1), "%g" % U_max_1])
                         data.append(["U МПП%d@МПП%d, В" % (i+1, 2*j+2), "%g" % U_max_2])
                     data.append(["Время@МПП%d, с" % (i+1), "%d" % frame[8 + 4*i]])

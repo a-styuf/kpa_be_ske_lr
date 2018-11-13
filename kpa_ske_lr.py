@@ -58,8 +58,8 @@ class Data:
                                "КПБЭ, В", "НормЦМ, В", "АМКО, В",
                                "Ток ЦМ, мА", "Ток МПП1-2, мА", "Ток МПП3-4, мА",
                                "Ток МДЭП, мА", "Ошибки ВШ, шт", "Неответы ВШ, шт",
-                               "Среднее МПП1, В", "Среднее МПП2, В", "Среднее ДРП, В",
-                               "Среднее ДНП, В", "Среднее РП1, В", "Среднее РП2, В",
+                               "Максимум МПП1, В", "Максимум МПП2, В", "Максимум ДРП, В",
+                               "Максимум ДНП, В", "Максимум РП1, В", "Максимум РП2, В",
                                "Поле ДЭП1, кВ", "Частота ДЭП1, Гц", "Температура ДЭП1, °С",
                                "Поле ДЭП2, кВ", "Частота ДЭП2, Гц", "Температура ДЭП2, °С",
                                "Наработка, ч", "Измерительный интервал, с",
@@ -69,8 +69,8 @@ class Data:
                               3.0, 3.0, 3.0,
                               75, 75, 75,
                               75, 1, 1,
-                              1, 1, 1,
-                              1, 1, 1,
+                              5, 5, 5,
+                              5, 5, 5,
                               10, 170, 85,
                               10, 170, 85,
                               1000, 240]
@@ -78,8 +78,8 @@ class Data:
                               1.0, 1.0, 1.0,
                               50, 50, 50,
                               50, 0, 0,
-                              -1, -1, -1,
-                              -1, -1, -1,
+                              2, 2, 2,
+                              2, 2, 2,
                               -10, 120, -50,
                               -10, 120, -50,
                               0, 1]
@@ -242,26 +242,21 @@ class Data:
 
     def mpp_read_algorithm(self):
         # # задаем воздействие с КПА todo: необходимо доделать КПА
-        # # читаем 6 кадров с помехами
-        # МПП 1-2 - ДРП, ДНП
-        for i in range(6):
-            subaddr = i + 1
-            self.read_from_rt(self.mko_addr, 0x0001 + i, 32)
-            time.sleep(0.5)
-            cw, aw, data = self.get_mko_data()
-            if aw == cw & 0xF800:
-                table_data = luna_data.frame_parcer(data)
-                for var in table_data:
-                    if "Среднее" in var[0]:
-                        if subaddr == 1: self._set_test_data("Среднее МПП1", var[1])
-                        elif subaddr == 2: self._set_test_data("Среднее МПП2", var[1])
-                        elif subaddr == 3: self._set_test_data("Среднее ДРП", var[1])
-                        elif subaddr == 4: self._set_test_data("Среднее ДНП", var[1])
-                        elif subaddr == 5: self._set_test_data("Среднее РП1", var[1])
-                        elif subaddr == 6: self._set_test_data("Среднее РП2", var[1])
-                        break
-            else:
-                return -1
+        # # читаем кадры с матрицей
+        self.read_from_rt(self.mko_addr, 7, 32)
+        time.sleep(0.5)
+        cw, aw, data = self.get_mko_data()
+        if aw == cw & 0xF800:
+            table_data = luna_data.frame_parcer(data)
+            for var in table_data:
+                if "МПП1@МПП1" in var[0]: self._set_test_data("Максимум МПП1, В", var[1])
+                elif "МПП2@МПП2" in var[0]: self._set_test_data("Максимум МПП2, В", var[1])
+                elif "МПП3@МПП3" in var[0]: self._set_test_data("Максимум ДРП, В", var[1])
+                elif "МПП4@МПП4" in var[0]: self._set_test_data("Максимум ДНП, В", var[1])
+                elif "МПП5@МПП5" in var[0]: self._set_test_data("Максимум РП1, В", var[1])
+                elif "МПП6@МПП6" in var[0]: self._set_test_data("Максимум РП2, В", var[1])
+        else:
+            return -1
         return 1
 
     def dep_read_algorithm(self):
@@ -279,7 +274,7 @@ class Data:
                 elif "Частота ДЭП1" in var[0]: self._set_test_data("Частота ДЭП1", var[1])
                 elif "Температура ДЭП1" in var[0]: self._set_test_data("Температура ДЭП1", var[1])
                 elif "Поле ДЭП2" in var[0]: self._set_test_data("Поле ДЭП2", var[1])
-                elif "Частота ДЭП2" in var[0]: self._set_test_data("Частота ДЭП2, Гц", var[1])
+                elif "Частота ДЭП2" in var[0]: self._set_test_data("Частота ДЭП2", var[1])
                 elif "Температура ДЭП2" in var[0]: self._set_test_data("Температура ДЭП2", var[1])
             return 1
         else:
@@ -312,7 +307,7 @@ class Data:
                 return
             # инициализируем ЦМ
             self.send_mko_comm_message(c_type="init_cm")
-            time.sleep(20)
+            time.sleep(25)
             # устанавливаем интервал измерения на 1 сек
             self.send_mko_comm_message(c_type="meas_interval", data=[1])
             time.sleep(10)

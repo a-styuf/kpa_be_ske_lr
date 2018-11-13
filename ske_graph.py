@@ -24,7 +24,7 @@ class Layout(QVBoxLayout):
             # plot data
             axes.plot(time, voltage, line_type_from_index(0), label=u"Напряжение")
             axes.plot(time, power, line_type_from_index(1), label=u"Мощность")
-            axes.set_title("Данные потреблеия БЭ СКЭ-ЛР")
+            axes.set_title("Данные энергопотребления БЭ СКЭ-ЛР")
             axes.set_ylabel("Напряжение, В / Мощность, Вт")
             axes.set_xlabel("Время, с")
             axes.set_ylim(bottom=0)
