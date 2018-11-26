@@ -677,7 +677,7 @@
             <item>
              <widget class="QGroupBox" name="SKE_testDEPPButt">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -685,52 +685,29 @@
               <property name="minimumSize">
                <size>
                 <width>200</width>
-                <height>65</height>
+                <height>190</height>
                </size>
               </property>
               <property name="title">
-               <string>Тестовый сигнал для ДЭП-ов</string>
+               <string>Тестовые сигналы</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_12">
-               <item row="0" column="0">
-                <widget class="QPushButton" name="SKE_depP30PButt">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>30</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>+ U</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QPushButton" name="SKE_depM30PButt">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>30</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>- U</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetMinimumSize</enum>
+               </property>
+               <property name="leftMargin">
+                <number>6</number>
+               </property>
+               <property name="topMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>6</number>
+               </property>
+               <property name="bottomMargin">
+                <number>6</number>
+               </property>
+               <item row="1" column="2">
                 <widget class="QPushButton" name="SKE_dep0PButt">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -749,34 +726,10 @@
                  </property>
                 </widget>
                </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="SKE_testMPPPButt">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>200</width>
-                <height>65</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>Тестовый сигнал МПП</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_9">
-               <property name="sizeConstraint">
-                <enum>QLayout::SetMinimumSize</enum>
-               </property>
-               <item row="0" column="4">
-                <widget class="QPushButton" name="SKE_mppCh3PButt">
+               <item row="1" column="1">
+                <widget class="QPushButton" name="SKE_depM30PButt">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -788,14 +741,14 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Канал 3</string>
+                  <string>- U</string>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="2">
-                <widget class="QPushButton" name="SKE_mppCh1PButt">
+               <item row="1" column="0">
+                <widget class="QPushButton" name="SKE_depP30PButt">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -807,31 +760,19 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Канал 1</string>
+                  <string>+ U</string>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="3">
-                <widget class="QPushButton" name="SKE_mppCh2PButt">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>30</height>
-                  </size>
-                 </property>
+               <item row="4" column="0" colspan="2">
+                <widget class="QLabel" name="label_3">
                  <property name="text">
-                  <string>Канал 2</string>
+                  <string>Циклическое задание воздействий</string>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="5">
-                <widget class="QPushButton" name="SKE_mppCh4PButt">
+               <item row="3" column="0">
+                <widget class="QPushButton" name="SKE_mpp12PButt">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
                    <horstretch>0</horstretch>
@@ -845,9 +786,137 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Канал 4</string>
+                  <string>МПП 1-2</string>
                  </property>
                 </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_2">
+                 <property name="text">
+                  <string>МПП</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QPushButton" name="SKE_dnp_drp_PButt">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>ДНТ, ДРП</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label">
+                 <property name="text">
+                  <string>ДЭП</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="2">
+                <widget class="QPushButton" name="SKE_rp12PButt">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>РП 1-2</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0" colspan="3">
+                <layout class="QHBoxLayout" name="horizontalLayout_6">
+                 <property name="spacing">
+                  <number>10</number>
+                 </property>
+                 <property name="sizeConstraint">
+                  <enum>QLayout::SetNoConstraint</enum>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="testCyclePeriodNameLabel">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>30</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Интервал цикла, с</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="testCyclePeriodSBox">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>30</height>
+                    </size>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>3600</number>
+                   </property>
+                   <property name="value">
+                    <number>10</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="testCycleCBox">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>30</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Запуск/Стоп</string>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
               </layout>
              </widget>
@@ -991,7 +1060,7 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>250</width>
+                   <width>280</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -999,16 +1068,16 @@
                   <enum>Qt::ScrollBarAlwaysOff</enum>
                  </property>
                  <property name="rowCount">
-                  <number>13</number>
+                  <number>20</number>
                  </property>
                  <attribute name="horizontalHeaderCascadingSectionResizes">
                   <bool>false</bool>
                  </attribute>
                  <attribute name="horizontalHeaderDefaultSectionSize">
-                  <number>130</number>
+                  <number>175</number>
                  </attribute>
                  <attribute name="horizontalHeaderMinimumSectionSize">
-                  <number>100</number>
+                  <number>170</number>
                  </attribute>
                  <attribute name="horizontalHeaderStretchLastSection">
                   <bool>true</bool>
@@ -1016,6 +1085,13 @@
                  <attribute name="verticalHeaderDefaultSectionSize">
                   <number>25</number>
                  </attribute>
+                 <row/>
+                 <row/>
+                 <row/>
+                 <row/>
+                 <row/>
+                 <row/>
+                 <row/>
                  <row/>
                  <row/>
                  <row/>
@@ -1039,7 +1115,7 @@
                    <string>Значение</string>
                   </property>
                   <property name="textAlignment">
-                   <set>AlignCenter</set>
+                   <set>AlignLeading|AlignVCenter</set>
                   </property>
                  </column>
                  <item row="0" column="1">
@@ -1051,6 +1127,9 @@
                   </property>
                  </item>
                  <item row="1" column="1">
+                  <property name="text">
+                   <string/>
+                  </property>
                   <property name="textAlignment">
                    <set>AlignCenter</set>
                   </property>

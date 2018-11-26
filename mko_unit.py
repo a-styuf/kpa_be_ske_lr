@@ -143,6 +143,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
     def action(self):
         if self.RWBox.currentText() in "Чтение":  # read
             self.read()
+            self.table_data = luna_data.frame_parcer(self.data)
         else:
             self.write()
         pass

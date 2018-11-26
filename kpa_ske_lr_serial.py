@@ -103,6 +103,8 @@ class MySerial(serial.Serial):
             data_to_send = self.dts_form(com=0x0A, data=data)
         elif req_type == "power":
             data_to_send = self.dts_form(com=0x0B, data=data)
+        elif req_type == "gener_sign":
+            data_to_send = self.dts_form(com=0x0C, data=data)
         else:
             data_to_send = self.dts_form(com=0x01)
         with self.com_send_lock:
@@ -186,6 +188,9 @@ class MySerial(serial.Serial):
                                                     break
                                                 else:
                                                     self.state = -3
+                                        else:
+                                            buf = read_data
+                                            read_data = bytearray(b"")
                                     else:
                                         buf = read_data[1:]
                                         read_data = bytearray(b"")

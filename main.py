@@ -23,6 +23,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.config_file = None
         self.log_file = None
         self.create_log_file()
+
         # ## КПА ## #
         self.kpa = kpa_ske_lr.Data()
         # # buttons
@@ -69,25 +70,38 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.cycleStartPButt.clicked.connect(lambda: self.cycleTimer.start(1000))
         self.cycleStopPButt.clicked.connect(self.stop_mko_cycle)
         # СКЭ #
-        # Питание, КУ
+        # Питание, КУa
         self.SKE_powOnPButt.clicked.connect(self.kpa.power_on)
         self.SKE_powOffPButt.clicked.connect(self.kpa.power_off)
         self.SKE_durationSBox.valueChanged.connect(self.durationSBox.setValue)  # дублируем значение в поле вкладки КПА
         self.SKE_onBEPButt.clicked.connect(lambda: self.ku_on_off(mode="on"))
         self.SKE_offBEPButt.clicked.connect(lambda: self.ku_on_off(mode="off"))
         # Тестовые воздействия
-        self.SKE_depP30PButt.clicked.connect(self.kpa.dep_p24v_on)
-        self.SKE_depM30PButt.clicked.connect(self.kpa.dep_m24v_on)
-        self.SKE_dep0PButt.clicked.connect(self.kpa.dep_0v_on)
+        # ДЭП
+        self.SKE_depP30PButt.clicked.connect(lambda: self.test_signal_dep(voltage=24))
+        self.SKE_depM30PButt.clicked.connect(lambda: self.test_signal_dep(voltage=-24))
+        self.SKE_dep0PButt.clicked.connect(lambda: self.test_signal_dep(voltage=0))
+        # МПП
+        self.SKE_mpp12PButt.clicked.connect(
+            lambda: self.kpa.mpp_test_sign(dev="mpp", u_max=10, u_min=0, period_num=20000, period_200us=2))
+        self.SKE_dnp_drp_PButt.clicked.connect(
+            lambda: self.kpa.mpp_test_sign(dev="dnp", u_max=10, u_min=0, period_num=20000, period_200us=2))
+        self.SKE_rp12PButt.clicked.connect(
+            lambda: self.kpa.mpp_test_sign(dev="rp", u_max=10, u_min=0, period_num=20000, period_200us=2))
+        # Циклическое воздействие
+        self.testCycleCBox.stateChanged.connect(self.test_cycle_start_stop)
+        self.testCycleTimer = QtCore.QTimer()
+        self.testCycleTimer.timeout.connect(self.test_cycle_body)
+        self.test_count = 0
         # Управление интервалом измерения
         self.SKE_mInterval1sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
-                                                  data=[1]))
+                                                                                         data=[1]))
         self.SKE_mInterval60sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
-                                                   data=[60]))
+                                                                                          data=[60]))
         self.SKE_mInterval120sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
-                                                    data=[120]))
+                                                                                           data=[120]))
         self.SKE_mInterval240sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
-                                                    data=[240]))
+                                                                                           data=[240]))
         # Тестирование СКЭ
         self.SKE_SkeTestPButt.clicked.connect(self.ske_test)
         self.test_file = None
@@ -113,7 +127,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
 
     def start_mko_cycle(self):
         period = self.cycleIntervalSBox.value()
-        self.cycleTimer.setInterval(period*1000)
+        self.cycleTimer.setInterval(period * 1000)
         #
         unit_num = len(self.units_widgets.unit_list)
         if self.cycle_step_count == 0:
@@ -232,8 +246,9 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
     def data_request(self):
         self.DataUpdateTimer.start(self.adcPeriodSBox.value() * 1000)
         if self.adcCycleCBox.isChecked():
-            # чтение данных АЦП
-            self.single_request()
+            if self.kpa.serial.is_open:
+                # чтение данных АЦП
+                self.single_request()
         pass
 
     def ku_on_off(self, mode="on"):
@@ -247,6 +262,9 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
     # СКЭ #
     def ske_test(self):
         try:
+            # на всякий пожарный отключаем таймер для подачи тестовых воздействий
+            self.test_cycle_stop()
+            #
             self.SKE_SkeTestPButt.setEnabled(False)
             #
             testing_status, testing_color = "Норма", "palegreen"
@@ -270,7 +288,6 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
                     table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data_name[row])
                     self.SKE_testResultTWidget.setItem(row, 0, table_item)
                     table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data[row])
-                    # print(self.kpa.test_data[row], type(self.kpa.test_data[row]))
                     table_item.setBackground(QColor(self.kpa.test_color[row]))
                     self.SKE_testResultTWidget.setItem(row, 1, table_item)
                     decision = "норма"
@@ -285,10 +302,15 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
                 self.SKE_SkeTestLabel.setStyleSheet("background-color: " + testing_color)
             # Запишем файл с результатом опроса
             self.write_test_data(test_report_file_str)
+        except Exception as error:
+            testing_status, testing_color = "Ошибка", "lightcoral"
+            # пишем статус окончания проверки
+            self.SKE_SkeTestLabel.setText(testing_status)
+            self.SKE_SkeTestLabel.setStyleSheet("background-color: " + testing_color)
+            print(error)
+        finally:
             # обновление статуса
             self.SKE_SkeTestPButt.setEnabled(True)
-        except Exception as error:
-            print(error)
 
     def create_test_file(self):
         dir_name = "Tests"
@@ -318,6 +340,61 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.test_file.write(report_string.replace(".", ","))
         self.close_test_file()
 
+    def test_signal_mpp(self, dev="mpp"):
+        self.kpa.mpp_test_sign(dev=dev, u_max=10, u_min=0, period_num=2000, period_200us=2)
+        pass
+
+    def test_signal_dep(self, voltage=0):
+        self.SKE_dep0PButt.setDown(False)
+        self.SKE_depP30PButt.setDown(False)
+        self.SKE_depM30PButt.setDown(False)
+        self.dep0PButt.setDown(False)
+        self.depP30PButt.setDown(False)
+        self.depM30PButt.setDown(False)
+        if voltage == 24:
+            self.kpa.dep_p24v_on()
+            self.SKE_depP30PButt.setDown(True)
+            self.depP30PButt.setDown(True)
+        elif voltage == 0:
+            self.kpa.dep_0v_on()
+            self.SKE_dep0PButt.setDown(True)
+            self.dep0PButt.setDown(True)
+        elif voltage == -24:
+            self.kpa.dep_m24v_on()
+            self.SKE_depM30PButt.setDown(True)
+            self.depM30PButt.setDown(True)
+        else:
+            self.kpa.dep_0v_on()
+        pass
+
+    def test_cycle_start_stop(self):
+        if self.testCycleCBox.isChecked():
+            self.testCycleTimer.start(100)
+            pass
+        else:
+            self.test_cycle_stop()
+            pass
+
+    def test_cycle_stop(self):
+        self.testCycleTimer.stop()
+        self.testCycleCBox.setChecked(False)
+        self.test_signal_dep()
+        pass
+
+    def test_cycle_body(self):
+        self.testCycleTimer.setInterval(self.testCyclePeriodSBox.value() * 1000)
+        if self.test_count % 3 == 0:
+            self.test_signal_mpp(dev="mpp")
+            self.test_signal_dep(voltage=24)
+        elif self.test_count % 3 == 1:
+            self.test_signal_mpp(dev="rp")
+            self.test_signal_dep(voltage=-24)
+        elif self.test_count % 3 == 2:
+            self.test_signal_mpp(dev="dnp")
+            self.test_signal_dep(voltage=0)
+        self.test_count += 1
+        pass
+
     # LOGs #
     def create_log_file(self):
         dir_name = "Logs"
@@ -332,7 +409,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         except (OSError, NameError, AttributeError) as error:
             pass
         file_name = sub_dir_name + "\\" + "Лог КПА СКЭ-ЛР от " + time.strftime("%Y_%m_%d %H-%M-%S",
-                                                                              time.localtime()) + ".txt"
+                                                                               time.localtime()) + ".txt"
         self.log_file = open(file_name, 'a')
 
     def close_log_file(self):
