@@ -466,8 +466,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
 
 
 if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    os.environ["QT_SCALE_FACTOR"] = "1.0"
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    os.environ["QT_SCALE_FACTOR"] = "1.5"
     #
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
     window = MainWindow()  # Создаём объект класса ExampleApp
