@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mko_unit_widget.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -125,6 +125,14 @@ class Ui_Frame(object):
 
         self.retranslateUi(Frame)
         QtCore.QMetaObject.connectSlotsByName(Frame)
+        Frame.setTabOrder(self.NameLine, self.AddrSpinBox)
+        Frame.setTabOrder(self.AddrSpinBox, self.SubaddrSpinBox)
+        Frame.setTabOrder(self.SubaddrSpinBox, self.LengSpinBox)
+        Frame.setTabOrder(self.LengSpinBox, self.CWLine)
+        Frame.setTabOrder(self.CWLine, self.AWLine)
+        Frame.setTabOrder(self.AWLine, self.RWBox)
+        Frame.setTabOrder(self.RWBox, self.ActionButton)
+        Frame.setTabOrder(self.ActionButton, self.DataTable)
 
     def retranslateUi(self, Frame):
         _translate = QtCore.QCoreApplication.translate

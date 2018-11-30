@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main_win.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_main_win(object):
     def setupUi(self, main_win):
         main_win.setObjectName("main_win")
-        main_win.resize(1218, 680)
+        main_win.resize(1257, 676)
         self.centralwidget = QtWidgets.QWidget(main_win)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -32,6 +32,7 @@ class Ui_main_win(object):
         self.horizontalLayout_9.setObjectName("horizontalLayout_9")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout()
         self.verticalLayout_3.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
+        self.verticalLayout_3.setSpacing(5)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.SKE_powerGBox = QtWidgets.QGroupBox(self.SKETab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -369,11 +370,6 @@ class Ui_main_win(object):
         self.SKE_mInterval240sRButt.setObjectName("SKE_mInterval240sRButt")
         self.gridLayout_13.addWidget(self.SKE_mInterval240sRButt, 2, 1, 1, 1)
         self.verticalLayout_3.addWidget(self.SKE_measIntervalGBox)
-        self.line_3 = QtWidgets.QFrame(self.SKETab)
-        self.line_3.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_3.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_3.setObjectName("line_3")
-        self.verticalLayout_3.addWidget(self.line_3)
         self.SKE_testDEPPButt = QtWidgets.QGroupBox(self.SKETab)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -901,6 +897,7 @@ class Ui_main_win(object):
         self.gridLayout_7 = QtWidgets.QGridLayout(self.mkoTab)
         self.gridLayout_7.setObjectName("gridLayout_7")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.scrollArea = QtWidgets.QScrollArea(self.mkoTab)
         self.scrollArea.setEnabled(True)
@@ -915,7 +912,7 @@ class Ui_main_win(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 748, 576))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 748, 589))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.horizontalLayout_3.addWidget(self.scrollArea)
@@ -1061,6 +1058,7 @@ class Ui_main_win(object):
         self.mkoDataTable.horizontalHeader().setStretchLastSection(True)
         self.mkoDataTable.verticalHeader().setDefaultSectionSize(25)
         self.horizontalLayout_3.addWidget(self.mkoDataTable)
+        self.horizontalLayout_3.setStretch(2, 1)
         self.gridLayout_7.addLayout(self.horizontalLayout_3, 0, 0, 1, 1)
         self.tabWidget.addTab(self.mkoTab, "")
         self.verticalLayout_2.addWidget(self.tabWidget)
@@ -1101,7 +1099,7 @@ class Ui_main_win(object):
         main_win.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(main_win)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(main_win)
 
     def retranslateUi(self, main_win):
