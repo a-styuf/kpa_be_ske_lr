@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>740</width>
+    <width>750</width>
     <height>140</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>740</width>
+    <width>750</width>
     <height>140</height>
    </size>
   </property>
@@ -321,7 +321,7 @@
     <rect>
      <x>330</x>
      <y>0</y>
-     <width>401</width>
+     <width>421</width>
      <height>130</height>
     </rect>
    </property>
@@ -333,7 +333,10 @@
    </property>
    <property name="font">
     <font>
+     <family>Courier New</family>
      <pointsize>8</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="verticalScrollBarPolicy">
@@ -343,10 +346,10 @@
     <enum>Qt::ScrollBarAlwaysOff</enum>
    </property>
    <attribute name="horizontalHeaderDefaultSectionSize">
-    <number>45</number>
+    <number>47</number>
    </attribute>
    <attribute name="horizontalHeaderMinimumSectionSize">
-    <number>45</number>
+    <number>47</number>
    </attribute>
    <attribute name="verticalHeaderDefaultSectionSize">
     <number>25</number>
@@ -526,7 +529,7 @@
     <rect>
      <x>10</x>
      <y>129</y>
-     <width>721</width>
+     <width>741</width>
      <height>21</height>
     </rect>
    </property>

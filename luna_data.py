@@ -41,7 +41,7 @@ def frame_parcer(frame):
                 data.append(["Счетчик включений", "%d" % frame[12]])
                 #
                 data.append(["Разность времени, c", "%d" % ((frame[13] << 16) + frame[14])])
-                data.append(["Кол-во синхрон., шт", "%d" % frame[15]])
+                data.append(["Кол-во синхрон., шт", "%d" % (frame[15] & 0xFF)])
 
                 data.append(["Ошибки ВШ", "%d" % ((frame[16] >> 8) & 0xFF)])
                 data.append(["Неответы ВШ", "%d" % ((frame[16]) & 0xFF)])
@@ -52,6 +52,11 @@ def frame_parcer(frame):
                 operating_time = (frame[19] << 16) + frame[20]
                 data.append(["Время наработки, ч", "%.3f" % (operating_time/3600)])
                 data.append(["Интервал измерения", "%d" % frame[21]])
+
+                data.append(["Время синхр., c", "%d" % ((frame[22] << 16) + frame[23])])
+                data.append(["Время синхр., с/256", "%d" % ((frame[24] >> 8) & 0xFF)])
+
+                data.append(["СТМ", "%02X" % (frame[24] & 0xFF)])
                 #
                 data.append(["CRC-16", "0x%04X" % crc16.calc(frame, 32)])
                 pass
@@ -66,9 +71,9 @@ def frame_parcer(frame):
                 elif frame[1] == 0x0C64:
                     mpp_num, a, b = 4, 9.86E-3, -2.89
                 elif frame[1] == 0x0C65:
-                    mpp_num, a, b = 5, 9.86E-3, -2.89
+                    mpp_num, a, b = 5, 5.01E-3, -10.3
                 elif frame[1] == 0x0C66:
-                    mpp_num, a, b = 6, 9.86E-3, -2.89
+                    mpp_num, a, b = 6, 5.01E-3, -10.3
                 else:
                     mpp_num, a, b = 5, 9.86E-3, -2.89
                 #
@@ -113,8 +118,8 @@ def frame_parcer(frame):
                     [2, 9.86E-3, -2.89],
                     [3, 9.86E-3, -2.89],
                     [4, 9.86E-3, -2.89],
-                    [5, 9.86E-3, -2.89],
-                    [6, 9.86E-3, -2.89]
+                    [5, 5.01E-3, -10.3],
+                    [6, 5.01E-3, -10.3]
                 ]
                 #
                 data.append(["Метка кадра", "0x%04X" % frame[0]])
@@ -142,8 +147,8 @@ def frame_parcer(frame):
                     [2, 9.86E-3, -2.89],
                     [3, 9.86E-3, -2.89],
                     [4, 9.86E-3, -2.89],
-                    [5, 9.86E-3, -2.89],
-                    [6, 9.86E-3, -2.89]
+                    [5, 5.01E-3, -10.3],
+                    [6, 5.01E-3, -10.3]
                 ]
                 #
                 data.append(["Метка кадра", "0x%04X" % frame[0]])
@@ -182,13 +187,18 @@ def frame_parcer(frame):
                 data.append(["Время кадра, с", "%d" % ((frame[3] << 16) + frame[4])])
                 #
                 for i in range(6):
-                    data.append(["Поле ДЭП1, кВ", "%d" % dep_field(frame[5 + 4 * i])])
-                    data.append(["Частота ДЭП1, Гц", "%d" % dep_freq((frame[6 + 4 * i] >> 8) & 0xFF)])
-                    data.append(["Температура ДЭП1, °C", "%d" % c_int8(((frame[6 + 4 * i] >> 0) & 0xFF)).value])
+                    # dbg_str = "field: %.3f; 0х%04X;\t" % (dep_field(frame[5 + 4 * i]), frame[5 + 4 * i])
+                    # dbg_str += "freq: %.3f; 0х%04X;\t" % (dep_freq((frame[6 + 4 * i] >> 8) & 0xFF), ((frame[6 + 4 * i] >> 8) & 0xFF))
+                    # dbg_str += "field: %.3f; 0х%04X;\t" % (dep_field(frame[7 + 4 * i]), frame[5 + 4 * i])
+                    # dbg_str += "freq: %.3f; 0х%04X;\t" % (dep_freq((frame[8 + 4 * i] >> 8) & 0xFF), ((frame[8 + 4 * i] >> 8) & 0xFF))
+                    # print(dbg_str)
+                    data.append(["U%d ДЭП1, кВ/м" % (i+1), "%d" % dep_field(frame[5 + 4 * i])])
+                    data.append(["F%d ДЭП1, Гц" % (i+1), "%d" % dep_freq((frame[6 + 4 * i] >> 8) & 0xFF)])
+                    data.append(["T%d ДЭП1, °C" % (i+1), "%d" % c_int8(((frame[6 + 4 * i] >> 0) & 0xFF)).value])
                     #
-                    data.append(["Поле ДЭП2, кВ", "%d" % dep_field(frame[7 + 4 * i])])
-                    data.append(["Частота ДЭП2, Гц", "%d" % dep_freq((frame[8 + 4 * i] >> 8) & 0xFF)])
-                    data.append(["Температура ДЭП2, °C", "%d" % c_int8(((frame[8 + 4 * i] >> 0) & 0xFF)).value])
+                    data.append(["U%d ДЭП2, кВ" % (i+1), "%d" % dep_field(frame[7 + 4 * i])])
+                    data.append(["F%d ДЭП2, Гц" % (i+1), "%d" % dep_freq((frame[8 + 4 * i] >> 8) & 0xFF)])
+                    data.append(["T%d ДЭП2, °C" % (i+1), "%d" % c_int8(((frame[8 + 4 * i] >> 0) & 0xFF)).value])
                     pass
                 #
                 data.append(["№ смены интервала", "%d" % frame[29]])

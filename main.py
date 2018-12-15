@@ -83,25 +83,26 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.SKE_dep0PButt.clicked.connect(lambda: self.test_signal_dep(voltage=0))
         # МПП
         self.SKE_mpp12PButt.clicked.connect(
-            lambda: self.kpa.mpp_test_sign(dev="mpp", u_max=10, u_min=0, period_num=20000, period_200us=2))
+            lambda: self.kpa.mpp_test_sign(dev="mpp", u_max=10, u_min=0, T=900, t=1, N=20, M=1))
         self.SKE_dnp_drp_PButt.clicked.connect(
-            lambda: self.kpa.mpp_test_sign(dev="dnp", u_max=10, u_min=0, period_num=20000, period_200us=2))
+            lambda: self.kpa.mpp_test_sign(dev="dnp", u_max=10, u_min=0, T=900, t=1, N=20, M=1))
         self.SKE_rp12PButt.clicked.connect(
-            lambda: self.kpa.mpp_test_sign(dev="rp", u_max=10, u_min=0, period_num=20000, period_200us=2))
+            lambda: self.kpa.mpp_test_sign(dev="rp", u_max=10, u_min=0, T=900, t=1, N=20, M=1))
         # Циклическое воздействие
         self.testCycleCBox.stateChanged.connect(self.test_cycle_start_stop)
         self.testCycleTimer = QtCore.QTimer()
         self.testCycleTimer.timeout.connect(self.test_cycle_body)
         self.test_count = 0
         # Управление интервалом измерения
-        self.SKE_mInterval1sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
-                                                                                         data=[1]))
+        self.SKE_mInterval1sPButton.clicked.connect(self.on_off_1s_meas_mode)
         self.SKE_mInterval60sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
-                                                                                          data=[60]))
+                                                                                          data=[1]))
         self.SKE_mInterval120sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
-                                                                                           data=[120]))
+                                                                                           data=[2]))
         self.SKE_mInterval240sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
-                                                                                           data=[240]))
+                                                                                           data=[3]))
+        self.SKE_dbgMIntPbutton.clicked.connect(lambda: self.kpa.send_mko_tech_comm_message(c_type="dbg_int",
+                                                                                            data=[10, 10]))
         # Тестирование СКЭ
         self.SKE_SkeTestPButt.clicked.connect(self.ske_test)
         self.test_file = None
@@ -264,39 +265,50 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         try:
             # на всякий пожарный отключаем таймер для подачи тестовых воздействий
             self.test_cycle_stop()
+            # узнаем измерительный интервал
+            if self.SKE_mInterval1sRButt.isChecked():
+                meas_interval = 1
+            elif self.SKE_mInterval60sRButt.isChecked():
+                meas_interval = 60
+            elif self.SKE_mInterval120sRButt.isChecked():
+                meas_interval = 120
+            elif self.SKE_mInterval240sRButt.isChecked():
+                meas_interval = 240
+            else:
+                meas_interval = 240
             #
             self.SKE_SkeTestPButt.setEnabled(False)
             #
             testing_status, testing_color = "Норма", "palegreen"
             # пишем статус начала проверки
-            self.SKE_SkeTestLabel.setText("Тестирование...")
+            self.SKE_SkeTestLabel.setText("Тестирование %.1f мин" % ((20 + meas_interval*40)/60))
             self.SKE_SkeTestLabel.setStyleSheet("background-color: " + "gold")
             #
             self.SKE_testResultTWidget.setRowCount(0)
             #
-            self.kpa.ske_test_start()
+            self.kpa.ske_test_start(meas_interval=meas_interval)
             while self.kpa.ske_test_status == 0:
                 QtCore.QCoreApplication.processEvents()
             test_report_file_str = ""
+            self.SKE_testResultTWidget.setRowCount(len(self.kpa.test_data_name))
+            for row in range(len(self.kpa.test_data_name)):
+                table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data_name[row])
+                self.SKE_testResultTWidget.setItem(row, 0, table_item)
+                table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data[row])
+                table_item.setBackground(QColor(self.kpa.test_color[row]))
+                self.SKE_testResultTWidget.setItem(row, 1, table_item)
+                decision = "норма"
+                if self.kpa.test_color[row] == "lightcoral":
+                    decision = "не норма"
+                    testing_status, testing_color = "Не норма", "lightcoral"
+                test_report_file_str += self.kpa.test_data_name[row] + ";"
+                test_report_file_str += self.kpa.test_data[row] + ";"
+                test_report_file_str += decision + ";\n"
             if self.kpa.ske_test_status == -1:
                 self.SKE_SkeTestLabel.setText("Не норма")
                 self.SKE_SkeTestLabel.setStyleSheet("background-color: " + "lightcoral")
                 test_report_file_str += "Проблемы с подключением."
             else:
-                self.SKE_testResultTWidget.setRowCount(len(self.kpa.test_data_name))
-                for row in range(len(self.kpa.test_data_name)):
-                    table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data_name[row])
-                    self.SKE_testResultTWidget.setItem(row, 0, table_item)
-                    table_item = QtWidgets.QTableWidgetItem(self.kpa.test_data[row])
-                    table_item.setBackground(QColor(self.kpa.test_color[row]))
-                    self.SKE_testResultTWidget.setItem(row, 1, table_item)
-                    decision = "норма"
-                    if self.kpa.test_color[row] == "lightcoral":
-                        decision = "не норма"
-                        testing_status, testing_color = "Не норма", "lightcoral"
-                    test_report_file_str += self.kpa.test_data_name[row] + ";"
-                    test_report_file_str += self.kpa.test_data[row] + ";"
-                    test_report_file_str += decision + ";\n"
                 # пишем статус окончания проверки
                 self.SKE_SkeTestLabel.setText(testing_status)
                 self.SKE_SkeTestLabel.setStyleSheet("background-color: " + testing_color)
@@ -341,7 +353,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.close_test_file()
 
     def test_signal_mpp(self, dev="mpp"):
-        self.kpa.mpp_test_sign(dev=dev, u_max=10, u_min=0, period_num=2000, period_200us=2)
+        self.kpa.mpp_test_sign(dev=dev, u_max=10, u_min=0, T=900, t=1, N=20, M=1)
         pass
 
     def test_signal_dep(self, voltage=0):
@@ -393,6 +405,13 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             self.test_signal_mpp(dev="dnp")
             self.test_signal_dep(voltage=0)
         self.test_count += 1
+        pass
+
+    def on_off_1s_meas_mode(self):
+        if self.SKE_mInterval1sPButton.isChecked():
+            self.kpa.send_mko_comm_message(c_type="1s_interval", data=[1, 0xFFFF])
+        else:
+            self.kpa.send_mko_comm_message(c_type="1s_interval", data=[0, 0xFFFF])
         pass
 
     # LOGs #
@@ -466,8 +485,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
 
 
 if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-    os.environ["QT_SCALE_FACTOR"] = "1.5"
+    # QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    # os.environ["QT_SCALE_FACTOR"] = "1.0"
     #
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
     window = MainWindow()  # Создаём объект класса ExampleApp
