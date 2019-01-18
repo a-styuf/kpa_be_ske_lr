@@ -266,14 +266,14 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             # на всякий пожарный отключаем таймер для подачи тестовых воздействий
             self.test_cycle_stop()
             # узнаем измерительный интервал
-            if self.SKE_mInterval1sRButt.isChecked():
-                meas_interval = 1
-            elif self.SKE_mInterval60sRButt.isChecked():
+            if self.SKE_mInterval60sRButt.isChecked():
                 meas_interval = 60
             elif self.SKE_mInterval120sRButt.isChecked():
                 meas_interval = 120
             elif self.SKE_mInterval240sRButt.isChecked():
                 meas_interval = 240
+            elif self.SKE_dbgMIntPbutton.isChecked():
+                meas_interval = 1
             else:
                 meas_interval = 240
             #
@@ -352,10 +352,6 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.test_file.write(report_string.replace(".", ","))
         self.close_test_file()
 
-    def test_signal_mpp(self, dev="mpp"):
-        self.kpa.mpp_test_sign(dev=dev, u_max=10, u_min=0, T=900, t=1, N=20, M=1)
-        pass
-
     def test_signal_dep(self, voltage=0):
         self.SKE_dep0PButt.setDown(False)
         self.SKE_depP30PButt.setDown(False)
@@ -396,14 +392,18 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
     def test_cycle_body(self):
         self.testCycleTimer.setInterval(self.testCyclePeriodSBox.value() * 1000)
         if self.test_count % 3 == 0:
-            self.test_signal_mpp(dev="mpp")
             self.test_signal_dep(voltage=24)
         elif self.test_count % 3 == 1:
-            self.test_signal_mpp(dev="rp")
             self.test_signal_dep(voltage=-24)
         elif self.test_count % 3 == 2:
-            self.test_signal_mpp(dev="dnp")
             self.test_signal_dep(voltage=0)
+        self.kpa.mpp_test_sign(dev="all",
+                               u_max=(self.test_count % 200)/10,  # от нуля до 15 В с шагом 0.1 В
+                               u_min=0,  # от нуля до 10 вольт с шагом в 0.1 В
+                               T=1000,
+                               t=1*(self.test_count % 10),  # частота от 1/200мкс до 1/10мс
+                               N=self.test_count % 50,  # от 1-го пика до 50
+                               M=1)  # один запуск
         self.test_count += 1
         pass
 
@@ -412,6 +412,21 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             self.kpa.send_mko_comm_message(c_type="1s_interval", data=[1, 0xFFFF])
         else:
             self.kpa.send_mko_comm_message(c_type="1s_interval", data=[0, 0xFFFF])
+        pass
+
+    def dbg_meas_mode(self):
+        if self.SKE_dbgMIntPbutton.isChecked():
+            self.kpa.send_mko_tech_comm_message(c_type="dbg_int", data=[10, 10])
+        else:
+            if self.SKE_mInterval60sRButt.isChecked():
+                meas_interval_val = 1
+            elif self.SKE_mInterval120sRButt.isChecked():
+                meas_interval_val = 2
+            elif self.SKE_mInterval240sRButt.isChecked():
+                meas_interval_val = 3
+            else:
+                meas_interval_val = 2
+            self.kpa.send_mko_comm_message(c_type="meas_interval", data=[meas_interval_val])
         pass
 
     # LOGs #

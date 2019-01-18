@@ -111,7 +111,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
             self.mko_dev.read_from_rt(int(self.AddrSpinBox.value()), int(self.SubaddrSpinBox.value()),
                                       int(self.LengSpinBox.value()))
             self.MKOTimer.singleShot(50, self.set_data_to_unit)
-            self.time_out = 4
+            self.time_out = 7
             self.state = 0
         else:
             self.state = 1
@@ -123,7 +123,8 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
         self.CWLine.setText("0x{:04X}".format(cw))
         self.AWLine.setText("0x{:04X}".format(aw))
         if aw != 0x0000:
-            self.insert_data(data)
+            if self.RWBox.currentText() in "Чтение":  # read
+                self.insert_data(data)
             self.state = 0
             self.get_data()
             self.table_data = luna_data.frame_parcer(self.data)
@@ -131,7 +132,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
             self.action_signal.emit(self.table_data)
         else:
             if self.time_out != 0x00:
-                self.MKOTimer.singleShot(100, self.set_data_to_unit)
+                self.MKOTimer.singleShot(50, self.set_data_to_unit)
                 self.time_out -= 1
                 return
             self.aw_err_cnt += 1

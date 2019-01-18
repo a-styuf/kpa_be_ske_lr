@@ -58,7 +58,7 @@ class Data:
                                "КПБЭ, В", "НормЦМ, В", "АМКО, В",
                                "Ток ЦМ, мА", "Ток МПП1-2, мА", "Ток МПП3-4, мА",
                                "Ток МДЭП, мА", "Ошибки ВШ, шт", "Неответы ВШ, шт",
-                               "Максимум МПП1, В", "Максимум МПП2, В", "Максимум ДРП, В",
+                               "Максимум Uизм2, В", "Максимум Uизм3, В", "Максимум ДРП, В",
                                "Максимум ДНП, В", "Максимум РП1, В", "Максимум РП2, В",
                                "U ДЭП1@+24V, кВ", "F ДЭП1@+24V, Гц", "T ДЭП1@+24V, °С",
                                "U ДЭП2@+24V, кВ", "F ДЭП2@+24V, Гц", "T ДЭП2@+24V, °С",
@@ -291,17 +291,17 @@ class Data:
     def mpp_read_algorithm(self, meas_interval=1):
         try:
             # # задаем воздействие с КПА
-            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=900, t=1, N=20, M=meas_interval*2)
+            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=900, t=1, N=20, M=meas_interval*5)
             # # читаем кадры с матрицей
-            time.sleep(meas_interval*2)
+            time.sleep(meas_interval*3)
             self.read_from_rt(self.mko_addr, 7, 32)
             time.sleep(0.5)
             cw, aw, data = self.get_mko_data()
             table_data = luna_data.frame_parcer(data)
             if aw == cw & 0xF800:
                 for report in table_data:
-                    if "МПП3@МПП3" in report[0]: self._set_test_data("Максимум МПП1, В", report[1])
-                    elif "МПП4@МПП4" in report[0]: self._set_test_data("Максимум МПП2, В", report[1])
+                    if "МПП3@МПП3" in report[0]: self._set_test_data("Максимум Uизм2, В", report[1])
+                    elif "МПП4@МПП4" in report[0]: self._set_test_data("Максимум Uизм3, В", report[1])
                     elif "МПП1@МПП1" in report[0]: self._set_test_data("Максимум ДРП, В", report[1])
                     elif "МПП2@МПП2" in report[0]: self._set_test_data("Максимум ДНП, В", report[1])
                     elif "МПП5@МПП5" in report[0]: self._set_test_data("Максимум РП1, В", report[1])
@@ -368,7 +368,7 @@ class Data:
         else:
             return -1
 
-    def cm_test_algorithm(self, meas_interval = 1):
+    def cm_test_algorithm(self, meas_interval=1):
         try:
             if self.serial.state != 1:
                 self.ske_test_status = -1
@@ -376,8 +376,11 @@ class Data:
             # инициализируем ЦМ
             self.send_mko_comm_message(c_type="init_cm")
             time.sleep(15)
-            # устанавливаем интервал измерения на 1 сек
-            self.send_mko_comm_message(c_type="meas_interval", data=[meas_interval & 0xFF])
+            # устанавливаем интервал измерения на meas_interval сек
+            if meas_interval >= 60:
+                self.send_mko_comm_message(c_type="meas_interval", data=[meas_interval//60])
+            else:
+                self.send_mko_tech_comm_message(c_type="dbg_int", data=[meas_interval, 10])
             time.sleep(meas_interval + 5)
             # подаем водздействия и читаем данные МПП и ДЭП
             if self.mpp_read_algorithm(meas_interval=meas_interval) < 0:
@@ -395,7 +398,7 @@ class Data:
             # читаем системный кадр ЦМ
             if self.sys_cm_read_algorithm() < 0:
                 self.ske_test_status = -1
-                return
+                raise Exception('Системный кадр не прочитан')
             # чтение данных АЦП КПА
             if self.serial.state != 1:
                 self.ske_test_status = -1
@@ -409,8 +412,11 @@ class Data:
             self._set_test_data("КПБЭ", "%.1f" % self.ske_KPBE[0])
             self._set_test_data("НормЦМ", "%.1f" % self.ske_NormCM[0])
             self._set_test_data("АМКО", "%.1f" % self.ske_AMKO[0])
-            # устанавливаем интервал измерения на 10 сек
-            self.send_mko_comm_message(c_type="meas_interval", data=[meas_interval])
+            # устанавливаем интервал измерения на meas_interval сек
+            if meas_interval >= 60:
+                self.send_mko_comm_message(c_type="meas_interval", data=[meas_interval//60])
+            else:
+                self.send_mko_tech_comm_message(c_type="dbg_int", data=[10, 10])
             time.sleep(0.3)
             self.ske_test_status = 1
         except Exception as error:

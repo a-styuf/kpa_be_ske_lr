@@ -63,19 +63,19 @@ def frame_parcer(frame):
             elif frame[1] == 0x0C61 or frame[1] == 0x0C62 or frame[1] == 0x0C63 or frame[1] == 0x0C64 or frame[1] == 0x0C65 or frame[1] == 0x0C66:  # МПП1-2 или МПП3-4 или МПП5-6
                 # подготовка
                 if frame[1] == 0x0C61:
-                    mpp_num, a, b = 1, 9.86E-3, -2.89
+                    mpp_num, a, b = 1, 4.851E-2, -99.26
                 elif frame[1] == 0x0C62:
-                    mpp_num, a, b = 2, 9.86E-3, -2.89
+                    mpp_num, a, b = 2, 1.408E-2, -5.986
                 elif frame[1] == 0x0C63:
-                    mpp_num, a, b = 3, 9.86E-3, -2.89
+                    mpp_num, a, b = 3, 1.375E-2, -5.349
                 elif frame[1] == 0x0C64:
-                    mpp_num, a, b = 4, 9.86E-3, -2.89
+                    mpp_num, a, b = 4, 1.413E-2, -6.334
                 elif frame[1] == 0x0C65:
-                    mpp_num, a, b = 5, 5.01E-3, -10.3
+                    mpp_num, a, b = 5, 7.302E-3, -14.89
                 elif frame[1] == 0x0C66:
-                    mpp_num, a, b = 6, 5.01E-3, -10.3
+                    mpp_num, a, b = 6, 7.447E-3, -15.23
                 else:
-                    mpp_num, a, b = 5, 9.86E-3, -2.89
+                    mpp_num, a, b = 5, 7.447E-3, -15.23
                 #
                 report_str = "0x "
                 for var in frame:
@@ -114,12 +114,12 @@ def frame_parcer(frame):
             elif frame[1] == 0x0C67:  # Помеховые матрица
                 # подготовка
                 mpp_calibr = [  # номер, a, b
-                    [1, 9.86E-3, -2.89],
-                    [2, 9.86E-3, -2.89],
-                    [3, 9.86E-3, -2.89],
-                    [4, 9.86E-3, -2.89],
-                    [5, 5.01E-3, -10.3],
-                    [6, 5.01E-3, -10.3]
+                    [1, 4.851E-2, -9.926],
+                    [2, 1.408E-2, -5.986],
+                    [3, 1.375E-2, -5.349],
+                    [4, 1.413E-2, -6.334],
+                    [5, 7.302E-3, -14.89],
+                    [6, 7.447E-3, -15.23]
                 ]
                 #
                 data.append(["Метка кадра", "0x%04X" % frame[0]])
@@ -129,11 +129,12 @@ def frame_parcer(frame):
                 #
                 for i in range(6):
                     for j in range(3):
-                        a, b = mpp_calibr[i][1], mpp_calibr[i][2]
-                        max_1 = ((frame[5 + j + 4*i] >> 0) & 0xFF)*(2**4)
-                        max_2 = ((frame[5 + j + 4*i] >> 8) & 0xFF)*(2**4)
-                        U_max_1 = a*max_1 if max_1 != 0 else 0
-                        U_max_2 = a*max_2 if max_2 != 0 else 0
+                        a1, b1 = mpp_calibr[j*2][1], mpp_calibr[j*2][2]
+                        a2, b2 = mpp_calibr[j*2+1][1], mpp_calibr[j*2+1][2]
+                        max_1 = ((frame[5 + j + 4*i] >> 8) & 0xFF)*(2**4)
+                        max_2 = ((frame[5 + j + 4*i] >> 0) & 0xFF)*(2**4)
+                        U_max_1 = a1*max_1 if max_1 != 0 else 0
+                        U_max_2 = a2*max_2 if max_2 != 0 else 0
                         data.append(["U МПП%d@МПП%d, В" % (i+1, 2*j+1), "%g" % U_max_1])
                         data.append(["U МПП%d@МПП%d, В" % (i+1, 2*j+2), "%g" % U_max_2])
                     data.append(["Время@МПП%d, с" % (i+1), "%d" % frame[8 + 4*i]])
@@ -143,12 +144,12 @@ def frame_parcer(frame):
             elif frame[1] == 0x0C68:  # Помеховые окна
                 # подготовка
                 mpp_calibr = [  # номер, a, b
-                    [1, 9.86E-3, -2.89],
-                    [2, 9.86E-3, -2.89],
-                    [3, 9.86E-3, -2.89],
-                    [4, 9.86E-3, -2.89],
-                    [5, 5.01E-3, -10.3],
-                    [6, 5.01E-3, -10.3]
+                    [1, 4.851E-2, -9.926],
+                    [2, 1.408E-2, -5.986],
+                    [3, 1.375E-3, -5.349],
+                    [4, 1.413E-3, -6.334],
+                    [5, 7.302E-3, -14.89],
+                    [6, 7.447E-3, -15.23]
                 ]
                 #
                 data.append(["Метка кадра", "0x%04X" % frame[0]])
@@ -189,8 +190,10 @@ def frame_parcer(frame):
                 for i in range(6):
                     # dbg_str = "field: %.3f; 0х%04X;\t" % (dep_field(frame[5 + 4 * i]), frame[5 + 4 * i])
                     # dbg_str += "freq: %.3f; 0х%04X;\t" % (dep_freq((frame[6 + 4 * i] >> 8) & 0xFF), ((frame[6 + 4 * i] >> 8) & 0xFF))
+                    # dbg_str += "temp: %.3f; 0х%04X;\t" % (c_int8(((frame[6 + 4 * i] >> 0) & 0xFF)).value, ((frame[6 + 4 * i] >> 0) & 0xFF))
                     # dbg_str += "field: %.3f; 0х%04X;\t" % (dep_field(frame[7 + 4 * i]), frame[5 + 4 * i])
                     # dbg_str += "freq: %.3f; 0х%04X;\t" % (dep_freq((frame[8 + 4 * i] >> 8) & 0xFF), ((frame[8 + 4 * i] >> 8) & 0xFF))
+                    # dbg_str += "temp: %.3f; 0х%04X;\t" % (c_int8(((frame[8 + 4 * i] >> 0) & 0xFF)).value, ((frame[8 + 4 * i] >> 0) & 0xFF))
                     # print(dbg_str)
                     data.append(["U%d ДЭП1, кВ/м" % (i+1), "%d" % dep_field(frame[5 + 4 * i])])
                     data.append(["F%d ДЭП1, Гц" % (i+1), "%d" % dep_freq((frame[6 + 4 * i] >> 8) & 0xFF)])

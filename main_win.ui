@@ -128,7 +128,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="SKETab">
        <attribute name="title">
@@ -804,6 +804,9 @@
                  <property name="text">
                   <string>Отладочный режим</string>
                  </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -1093,47 +1096,6 @@
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBox_2">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>70</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>СТМ</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_15">
-               <item row="0" column="0">
-                <widget class="QPushButton" name="pushButton_5">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>30</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Логический 0</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QPushButton" name="pushButton_6">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>30</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Логическая 1</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
              <spacer name="verticalSpacer_3">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -1209,7 +1171,7 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>10</pointsize>
+                   <pointsize>8</pointsize>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -2549,7 +2511,7 @@ p, li { white-space: pre-wrap; }
              <number>1</number>
             </property>
             <property name="minimum">
-             <double>0.300000000000000</double>
+             <double>0.500000000000000</double>
             </property>
             <property name="maximum">
              <double>100000.000000000000000</double>
@@ -2558,7 +2520,7 @@ p, li { white-space: pre-wrap; }
              <double>0.100000000000000</double>
             </property>
             <property name="value">
-             <double>0.300000000000000</double>
+             <double>0.500000000000000</double>
             </property>
            </widget>
           </item>
