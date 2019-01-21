@@ -128,7 +128,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="SKETab">
        <attribute name="title">
@@ -1137,9 +1137,9 @@
                 <enum>QLayout::SetMinimumSize</enum>
                </property>
                <item row="0" column="0">
-                <widget class="QPushButton" name="SKE_SkeTestPButt">
+                <widget class="QPushButton" name="SKE_SkeTestStartPButt">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -1151,11 +1151,30 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>СКЭ</string>
+                  <string>Запуск</string>
                  </property>
                 </widget>
                </item>
                <item row="0" column="1">
+                <widget class="QPushButton" name="SKE_SkeTestStopPButt">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Остановить</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>false</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="2">
                 <widget class="QLabel" name="SKE_SkeTestLabel">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1166,7 +1185,7 @@
                  <property name="minimumSize">
                   <size>
                    <width>150</width>
-                   <height>0</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="font">

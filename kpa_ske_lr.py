@@ -73,7 +73,7 @@ class Data:
                               3.0, 3.0, 3.0,
                               75, 75, 75,
                               75, 1, 1,
-                              13, 13, 13,
+                              13, 13, 1,
                               13, 13, 13,
                               10, 170, 85,
                               10, 170, 85,
@@ -86,15 +86,15 @@ class Data:
                               1.0, 1.0, 1.0,
                               50, 50, 50,
                               50, 0, 0,
+                              7, 7, -1,
                               7, 7, 7,
-                              7, 7, 7,
                               -10, 120, -50,
                               -10, 120, -50,
                               -10, 120, -50,
                               -10, 120, -50,
                               -10, 120, -50,
                               -10, 120, -50,
-                              0, 1]
+                              0, 9]
         self.test_color_teamplate = [["lightcoral", "palegreen", "lightcoral", "ghostwhite"] for i in
                                      range(len(self.test_data_name))]
         self.test_color_teamplate[3] = ["palegreen", "lightcoral", "mediumturquoise", "ghostwhite"]  # AMKO
@@ -103,6 +103,7 @@ class Data:
         self.test_color = [color[3] for color in self.test_color_teamplate]
         self.ske_test_status = 0
         #
+        self.test_stop_event = threading.Event()
         self.test_thread = threading.Thread(target=self.cm_test_algorithm)
         self.test_lock = threading.Lock()
         #
@@ -291,9 +292,11 @@ class Data:
     def mpp_read_algorithm(self, meas_interval=1):
         try:
             # # задаем воздействие с КПА
-            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=900, t=1, N=20, M=meas_interval*5)
+            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=1000, t=1, N=20, M=meas_interval*30)
             # # читаем кадры с матрицей
-            time.sleep(meas_interval*3)
+            self.test_stop_event.wait(meas_interval*2)
+            if self.test_stop_event.isSet():
+                raise Exception('Принудительное завершение работы')
             self.read_from_rt(self.mko_addr, 7, 32)
             time.sleep(0.5)
             cw, aw, data = self.get_mko_data()
@@ -327,7 +330,9 @@ class Data:
             self.dep_0v_on()
             t_v_str = "@0"
         # # читаем показания dep
-        time.sleep(meas_interval*2*6)
+        self.test_stop_event.wait(meas_interval*2)
+        if self.test_stop_event.isSet():
+            raise Exception('Принудительное завершение работы')
         self.read_from_rt(self.mko_addr, 0x0009, 32)
         time.sleep(0.5)
         cw, aw, data = self.get_mko_data()
@@ -347,8 +352,6 @@ class Data:
             return -1
 
     def sys_cm_read_algorithm(self, meas_interval=1):
-        self.test_data_top[-1] = meas_interval
-        self.test_data_bot[-1] = meas_interval
         # # читаем системный кадр
         self.read_from_rt(self.mko_addr, 0x000F, 32)
         time.sleep(0.5)
@@ -370,18 +373,23 @@ class Data:
 
     def cm_test_algorithm(self, meas_interval=1):
         try:
+            print("%.3f" % time.clock())
             if self.serial.state != 1:
                 self.ske_test_status = -1
                 raise Exception('Тест не закончен')
             # инициализируем ЦМ
             self.send_mko_comm_message(c_type="init_cm")
-            time.sleep(15)
+            self.test_stop_event.wait(15)
+            if self.test_stop_event.isSet():
+                raise Exception('Принудительная остановка')
             # устанавливаем интервал измерения на meas_interval сек
             if meas_interval >= 60:
                 self.send_mko_comm_message(c_type="meas_interval", data=[meas_interval//60])
             else:
                 self.send_mko_tech_comm_message(c_type="dbg_int", data=[meas_interval, 10])
-            time.sleep(meas_interval + 5)
+            self.test_stop_event.wait(meas_interval + 5)
+            if self.test_stop_event.isSet():
+                raise Exception('Принудительная остановка')
             # подаем водздействия и читаем данные МПП и ДЭП
             if self.mpp_read_algorithm(meas_interval=meas_interval) < 0:
                 self.ske_test_status = -1
@@ -412,6 +420,9 @@ class Data:
             self._set_test_data("КПБЭ", "%.1f" % self.ske_KPBE[0])
             self._set_test_data("НормЦМ", "%.1f" % self.ske_NormCM[0])
             self._set_test_data("АМКО", "%.1f" % self.ske_AMKO[0])
+            # проверяем на принудительность остановки
+            if self.test_stop_event.isSet():
+                raise Exception('Принудительная остановка')
             # устанавливаем интервал измерения на meas_interval сек
             if meas_interval >= 60:
                 self.send_mko_comm_message(c_type="meas_interval", data=[meas_interval//60])
@@ -424,9 +435,10 @@ class Data:
             self.ske_test_status = -1
         finally:
             # устанавливаем интервал измерения на 10 сек
+            self.test_stop_event.clear()
             self.send_mko_comm_message(c_type="meas_interval", data=[10])
             time.sleep(0.3)
-            # print("finish")
+            print(print("%.3f" % time.clock()), "finish")
 
     def ske_test_start(self, meas_interval=1):
         if self.test_thread.is_alive():
@@ -435,6 +447,7 @@ class Data:
         else:
             self.test_thread = threading.Thread(target=self.cm_test_algorithm, kwargs={"meas_interval": meas_interval})
             self.test_thread.start()
+            self.test_stop_event.clear()
             self.ske_test_status = 0
             return
         pass
@@ -447,11 +460,13 @@ class Data:
         return color
 
     def _set_test_data(self, name, data):
+        # print(len(self.test_data_name), len(self.test_data_bot), len(self.test_data_top))
         for i in range(len(self.test_data_name)):
             if name in self.test_data_name[i]:
                 self.test_data[i] = data
                 self.test_color[i] = self.test_color_teamplate[i][
                     bound_calc(float(data), self.test_data_top[i], self.test_data_bot[i])]
+                # print(name, data, self.test_color[i], self.test_data_top[i], self.test_data_bot[i])
                 pass
         pass
 
@@ -481,3 +496,4 @@ def bytes_array_to_str(bytes_array):
         byte_str = (" %02X" % bytes_array[i])
         bytes_string += byte_str
     return bytes_string
+

@@ -104,7 +104,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.SKE_dbgMIntPbutton.clicked.connect(lambda: self.kpa.send_mko_tech_comm_message(c_type="dbg_int",
                                                                                             data=[10, 10]))
         # Тестирование СКЭ
-        self.SKE_SkeTestPButt.clicked.connect(self.ske_test)
+        self.SKE_SkeTestStartPButt.clicked.connect(self.ske_test_start)
+        self.SKE_SkeTestStopPButt.clicked.connect(self.ske_test_stop)
         self.test_file = None
         # Графики напряжения и мощности
         self.ske_graph_layout = ske_graph.Layout(self.SKE_GrView)
@@ -261,7 +262,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         pass
 
     # СКЭ #
-    def ske_test(self):
+    def ske_test_start(self):
         try:
             # на всякий пожарный отключаем таймер для подачи тестовых воздействий
             self.test_cycle_stop()
@@ -273,20 +274,21 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             elif self.SKE_mInterval240sRButt.isChecked():
                 meas_interval = 240
             elif self.SKE_dbgMIntPbutton.isChecked():
-                meas_interval = 1
+                meas_interval = 10
             else:
                 meas_interval = 240
             #
-            self.SKE_SkeTestPButt.setEnabled(False)
+            self.SKE_SkeTestStartPButt.setEnabled(False)
+            self.SKE_SkeTestStopPButt.setEnabled(True)
             #
             testing_status, testing_color = "Норма", "palegreen"
             # пишем статус начала проверки
-            self.SKE_SkeTestLabel.setText("Тестирование %.1f мин" % ((20 + meas_interval*40)/60))
+            self.SKE_SkeTestLabel.setText("Тестирование %.1f мин" % ((22 + meas_interval*9)/60))
             self.SKE_SkeTestLabel.setStyleSheet("background-color: " + "gold")
             #
             self.SKE_testResultTWidget.setRowCount(0)
             #
-            self.kpa.ske_test_start(meas_interval=meas_interval)
+            self.kpa.ske_test_start(meas_interval=meas_interval)  # !! тело теста !!
             while self.kpa.ske_test_status == 0:
                 QtCore.QCoreApplication.processEvents()
             test_report_file_str = ""
@@ -322,7 +324,12 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             print(error)
         finally:
             # обновление статуса
-            self.SKE_SkeTestPButt.setEnabled(True)
+            self.SKE_SkeTestStartPButt.setEnabled(True)
+            self.SKE_SkeTestStopPButt.setEnabled(False)
+
+    def ske_test_stop(self):
+        self.kpa.test_stop_event.set()
+        self.SKE_SkeTestStopPButt.setEnabled(False)
 
     def create_test_file(self):
         dir_name = "Tests"
