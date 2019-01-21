@@ -292,7 +292,7 @@ class Data:
     def mpp_read_algorithm(self, meas_interval=1):
         try:
             # # задаем воздействие с КПА
-            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=1000, t=1, N=20, M=meas_interval*30)
+            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=5000, t=1, N=20, M=meas_interval)
             # # читаем кадры с матрицей
             self.test_stop_event.wait(meas_interval*2)
             if self.test_stop_event.isSet():
@@ -373,7 +373,6 @@ class Data:
 
     def cm_test_algorithm(self, meas_interval=1):
         try:
-            print("%.3f" % time.clock())
             if self.serial.state != 1:
                 self.ske_test_status = -1
                 raise Exception('Тест не закончен')
@@ -438,7 +437,6 @@ class Data:
             self.test_stop_event.clear()
             self.send_mko_comm_message(c_type="meas_interval", data=[10])
             time.sleep(0.3)
-            print(print("%.3f" % time.clock()), "finish")
 
     def ske_test_start(self, meas_interval=1):
         if self.test_thread.is_alive():

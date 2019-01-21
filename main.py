@@ -267,14 +267,14 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             # на всякий пожарный отключаем таймер для подачи тестовых воздействий
             self.test_cycle_stop()
             # узнаем измерительный интервал
-            if self.SKE_mInterval60sRButt.isChecked():
+            if self.SKE_dbgMIntPbutton.isChecked():
+                meas_interval = 10
+            elif self.SKE_mInterval60sRButt.isChecked():
                 meas_interval = 60
             elif self.SKE_mInterval120sRButt.isChecked():
                 meas_interval = 120
             elif self.SKE_mInterval240sRButt.isChecked():
                 meas_interval = 240
-            elif self.SKE_dbgMIntPbutton.isChecked():
-                meas_interval = 10
             else:
                 meas_interval = 240
             #
@@ -283,7 +283,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             #
             testing_status, testing_color = "Норма", "palegreen"
             # пишем статус начала проверки
-            self.SKE_SkeTestLabel.setText("Тестирование %.1f мин" % ((22 + meas_interval*9)/60))
+            self.SKE_SkeTestLabel.setText("Тестирование %.1f мин" % ((22 + meas_interval*11)/60))
             self.SKE_SkeTestLabel.setStyleSheet("background-color: " + "gold")
             #
             self.SKE_testResultTWidget.setRowCount(0)
@@ -405,11 +405,11 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         elif self.test_count % 3 == 2:
             self.test_signal_dep(voltage=0)
         self.kpa.mpp_test_sign(dev="all",
-                               u_max=(self.test_count % 200)/10,  # от нуля до 15 В с шагом 0.1 В
+                               u_max=(self.test_count % 200),  # от нуля до 15 В с шагом 1 В
                                u_min=0,  # от нуля до 10 вольт с шагом в 0.1 В
                                T=1000,
                                t=1*(self.test_count % 10),  # частота от 1/200мкс до 1/10мс
-                               N=self.test_count % 50,  # от 1-го пика до 50
+                               N=self.test_count % 15,  # от 1-го пика до 15
                                M=1)  # один запуск
         self.test_count += 1
         pass

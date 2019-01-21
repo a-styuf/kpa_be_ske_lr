@@ -395,7 +395,7 @@ class Ui_main_win(object):
         self.SKE_mInterval1sPButton.setCheckable(True)
         self.SKE_mInterval1sPButton.setObjectName("SKE_mInterval1sPButton")
         self.gridLayout_13.addWidget(self.SKE_mInterval1sPButton, 1, 1, 1, 1)
-        self.SKE_dbgMIntPbutton = QtWidgets.QPushButton(self.SKE_measIntervalGBox)
+        self.SKE_dbgMIntPbutton = QtWidgets.QRadioButton(self.SKE_measIntervalGBox)
         self.SKE_dbgMIntPbutton.setMinimumSize(QtCore.QSize(0, 30))
         self.SKE_dbgMIntPbutton.setCheckable(True)
         self.SKE_dbgMIntPbutton.setObjectName("SKE_dbgMIntPbutton")

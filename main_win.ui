@@ -794,7 +794,7 @@
                 </widget>
                </item>
                <item row="3" column="1">
-                <widget class="QPushButton" name="SKE_dbgMIntPbutton">
+                <widget class="QRadioButton" name="SKE_dbgMIntPbutton">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
