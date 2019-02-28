@@ -94,7 +94,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.testCycleTimer.timeout.connect(self.test_cycle_body)
         self.test_count = 0
         # Управление интервалом измерения
-        self.SKE_mInterval1sPButton.clicked.connect(self.on_off_1s_meas_mode)
+
         self.SKE_mInterval60sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
                                                                                           data=[1]))
         self.SKE_mInterval120sRButt.clicked.connect(lambda: self.kpa.send_mko_comm_message(c_type="meas_interval",
@@ -103,6 +103,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
                                                                                            data=[3]))
         self.SKE_dbgMIntPbutton.clicked.connect(lambda: self.kpa.send_mko_tech_comm_message(c_type="dbg_int",
                                                                                             data=[10, 10]))
+        self.SKE_mInterval1sPButton.clicked.connect(self.speedy_mode)
         # Тестирование СКЭ
         self.SKE_SkeTestStartPButt.clicked.connect(self.ske_test_start)
         self.SKE_SkeTestStopPButt.clicked.connect(self.ske_test_stop)
@@ -414,12 +415,25 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.test_count += 1
         pass
 
-    def on_off_1s_meas_mode(self):
-        if self.SKE_mInterval1sPButton.isChecked():
-            self.kpa.send_mko_comm_message(c_type="1s_interval", data=[1, 0xFFFF])
+    def speedy_mode(self):
+        frames_choosed = 0x00
+        frame_check_boxes = [self.SKE_mpp1speedChBox,
+                             self.SKE_mpp2speedChBox,
+                             self.SKE_mpp3speedChBox,
+                             self.SKE_mpp4speedChBox,
+                             self.SKE_mpp5speedChBox,
+                             self.SKE_mpp6speedChBox,
+                             self.SKE_matrixspeedChBox,
+                             self.SKE_windspeedChBox,
+                             self.SKE_depspeedChBox,
+                             ]
+        for i in range(len(frame_check_boxes)):
+            if frame_check_boxes[i].isChecked():
+                frames_choosed += 1 << i  # устанавливаем 1 для включения определенного типа кадров
+        if frames_choosed != 0:
+            self.kpa.send_mko_comm_message(c_type="speedy_mode", data=[1, frames_choosed & 0xFFFF])
         else:
-            self.kpa.send_mko_comm_message(c_type="1s_interval", data=[0, 0xFFFF])
-        pass
+            self.kpa.send_mko_comm_message(c_type="speedy_mode", data=[0, 0])
 
     def dbg_meas_mode(self):
         if self.SKE_dbgMIntPbutton.isChecked():

@@ -116,7 +116,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
         <horstretch>1</horstretch>
         <verstretch>1</verstretch>
        </sizepolicy>
@@ -124,7 +124,7 @@
       <property name="minimumSize">
        <size>
         <width>1310</width>
-        <height>600</height>
+        <height>700</height>
        </size>
       </property>
       <property name="currentIndex">
@@ -699,7 +699,7 @@
             <item>
              <widget class="QGroupBox" name="SKE_measIntervalGBox">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -707,13 +707,25 @@
               <property name="minimumSize">
                <size>
                 <width>230</width>
-                <height>100</height>
+                <height>80</height>
                </size>
               </property>
               <property name="title">
                <string>Режимы измерения</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_13">
+               <property name="leftMargin">
+                <number>5</number>
+               </property>
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="rightMargin">
+                <number>5</number>
+               </property>
+               <property name="bottomMargin">
+                <number>5</number>
+               </property>
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -727,8 +739,8 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
-                   <height>30</height>
+                   <width>50</width>
+                   <height>20</height>
                   </size>
                  </property>
                  <property name="text">
@@ -749,8 +761,8 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
-                   <height>30</height>
+                   <width>50</width>
+                   <height>20</height>
                   </size>
                  </property>
                  <property name="text">
@@ -768,8 +780,8 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>100</width>
-                   <height>30</height>
+                   <width>50</width>
+                   <height>20</height>
                   </size>
                  </property>
                  <property name="text">
@@ -777,28 +789,18 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QPushButton" name="SKE_mInterval1sPButton">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>30</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Ускоренный режим</string>
-                 </property>
-                 <property name="checkable">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
+               <item row="0" column="0">
                 <widget class="QRadioButton" name="SKE_dbgMIntPbutton">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>30</height>
+                   <height>20</height>
                   </size>
                  </property>
                  <property name="text">
@@ -807,6 +809,121 @@
                  <property name="checkable">
                   <bool>true</bool>
                  </property>
+                </widget>
+               </item>
+               <item row="0" column="1" rowspan="4">
+                <widget class="QGroupBox" name="groupBox_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>160</height>
+                  </size>
+                 </property>
+                 <property name="title">
+                  <string/>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_15">
+                  <property name="leftMargin">
+                   <number>5</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>5</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>5</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>5</number>
+                  </property>
+                  <property name="verticalSpacing">
+                   <number>5</number>
+                  </property>
+                  <item row="3" column="0">
+                   <widget class="QCheckBox" name="SKE_mpp1speedChBox">
+                    <property name="text">
+                     <string>МПП 1</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QCheckBox" name="SKE_mpp2speedChBox">
+                    <property name="text">
+                     <string>МПП 2</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QCheckBox" name="SKE_mpp4speedChBox">
+                    <property name="text">
+                     <string>МПП 4</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QCheckBox" name="SKE_mpp3speedChBox">
+                    <property name="text">
+                     <string>МПП 3</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QCheckBox" name="SKE_windspeedChBox">
+                    <property name="text">
+                     <string>Окна</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QCheckBox" name="SKE_matrixspeedChBox">
+                    <property name="text">
+                     <string>Матрицы</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="0">
+                   <widget class="QCheckBox" name="SKE_depspeedChBox">
+                    <property name="text">
+                     <string>МДЭП</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QCheckBox" name="SKE_mpp5speedChBox">
+                    <property name="text">
+                     <string>МПП 5</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QCheckBox" name="SKE_mpp6speedChBox">
+                    <property name="text">
+                     <string>МПП 6</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0" colspan="2">
+                   <widget class="QPushButton" name="SKE_mInterval1sPButton">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>25</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Ускоренный режим</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
               </layout>
@@ -867,25 +984,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="3">
-                <widget class="QPushButton" name="SKE_dep0PButt">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>30</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>0 В</string>
-                 </property>
-                </widget>
-               </item>
                <item row="0" column="1">
                 <widget class="QPushButton" name="SKE_depP30PButt">
                  <property name="sizePolicy">
@@ -943,22 +1041,22 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label">
+               <item row="0" column="3">
+                <widget class="QPushButton" name="SKE_dep0PButt">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>40</width>
+                   <width>0</width>
                    <height>30</height>
                   </size>
                  </property>
                  <property name="text">
-                  <string>ДЭП</string>
+                  <string>0 В</string>
                  </property>
                 </widget>
                </item>
@@ -978,6 +1076,60 @@
                  </property>
                  <property name="text">
                   <string>МПП</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>40</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>ДЭП</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPushButton" name="SKE_depM30PButt">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>- U</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0" colspan="4">
+                <widget class="QLabel" name="label_3">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Циклическое задание воздействий</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </item>
@@ -1056,41 +1208,6 @@
                   </widget>
                  </item>
                 </layout>
-               </item>
-               <item row="4" column="0" colspan="4">
-                <widget class="QLabel" name="label_3">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Циклическое задание воздействий</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <widget class="QPushButton" name="SKE_depM30PButt">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>30</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>- U</string>
-                 </property>
-                </widget>
                </item>
               </layout>
              </widget>
@@ -2257,7 +2374,7 @@ p, li { white-space: pre-wrap; }
              <x>0</x>
              <y>0</y>
              <width>761</width>
-             <height>642</height>
+             <height>548</height>
             </rect>
            </property>
           </widget>

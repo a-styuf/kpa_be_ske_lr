@@ -176,7 +176,7 @@ class Data:
             comm_data = [0x0002, 0x0000, 0x0000, 0x0000]
         elif c_type == "meas_interval":
             comm_data = [0x0003, data[0], 0x0000, 0x0000]
-        elif c_type == "1s_interval":
+        elif c_type == "speedy_mode":
             comm_data = [0x000B, data[0], data[1], 0x0000]
         elif c_type == "start_mem_read":
             comm_data = [0x0007, 0x0000, 0x0000, 0x0000]
