@@ -42,6 +42,7 @@ class Data:
         self.ske_KPBE = [0, "ghostwhite"]
         self.ske_NormCM = [0, "ghostwhite"]
         self.ske_AMKO = [0, "ghostwhite"]
+        self.adc_log_buffer = []
         self.graph_data = [[], [], []]
         self.max_point = 10000
         # ## GPIO ## #
@@ -53,6 +54,7 @@ class Data:
         self.mko_cw = 0x0000
         self.mko_aw = 0x0000
         self.mko_data = []
+        self.mko_log_buffer = []
         # ## TESTS ## #
         self.test_data_name = ["Напряжение, В", "Ток БЭ, мА", "Потребление БЭ, Вт",
                                "КПБЭ, В", "НормЦМ, В", "АМКО, В",
@@ -231,6 +233,8 @@ class Data:
                     for i in range(len(var[1]) // 2):
                         self.adc_data[i] = self.adc_a[i]*(int.from_bytes(var[1][2*i:2*i+2], signed=False, byteorder='big')
                                                           & 0x0FFF) + self.adc_b[i]
+                    with self.serial.ans_data_lock:
+                        self.adc_log_buffer.append(self.get_adc_data_str())
                 elif var[0] == 0x07 or var[0] == 0x08:  # получение данных МКО
                     self.mko_aw = int.from_bytes(var[1][0:2], signed=False, byteorder='big')
                     # print("aw = 0x%04X" % self.mko_aw)
@@ -238,6 +242,8 @@ class Data:
                         self.mko_data = []
                         for i in range(1, len(var[1]) // 2):
                             self.mko_data.append(int.from_bytes(var[1][2*i:2*(i + 1)], signed=False, byteorder='big'))
+                    with self.serial.ans_data_lock:
+                        self.mko_log_buffer.append(self.get_mko_data_title())
             if self._close_event.is_set() is True:
                 self._close_event.clear()
                 return
@@ -260,6 +266,41 @@ class Data:
         self.ske_AMKO = [adc_data_tmp[1], adc_color[1]]
         self.form_graph_data()
         return adc_data_tmp, adc_color
+
+    def get_adc_data_str(self):
+        adc_data_str = get_date_time() + ";"
+        for i in range(len(self.adc_data)):
+            adc_data_str += ("%.3f" % self.adc_data[i]).replace(".", ",") + ";"
+        return adc_data_str
+
+    def get_adc_data_title(self):
+        adc_data_str = "Время;"
+        for i in range(len(self.adc_name)):
+            adc_data_str += ("%s" % self.adc_name[i]).replace(".", ",") + ";"
+        return adc_data_str
+
+    def get_mko_data_title(self):
+        mko_data_str = ""
+        mko_str = ""
+        for var in self.mko_data:
+            mko_data_str += "%04X " % var
+        mko_str += get_date_time() + ";" + \
+                   " CW:%04X" % self.mko_cw + "; " + \
+                   " AW:%04X" % self.mko_aw + "; " + \
+                   " D:" + mko_data_str + ";"
+        return mko_str
+
+    def get_mko_log(self):
+        with self.serial.ans_data_lock:
+            buffer = self.mko_log_buffer
+            self.mko_log_buffer = []
+        return buffer
+
+    def get_adc_log(self):
+        with self.serial.ans_data_lock:
+            buffer = self.adc_log_buffer
+            self.adc_log_buffer = []
+        return buffer
 
     def form_graph_data(self):
         try:
@@ -478,6 +519,8 @@ def bound_calc(val, top, bot):
 def get_time():
     return time.strftime("%H-%M-%S", time.localtime()) + "." + ("%.3f: " % time.clock()).split(".")[1]
 
+def get_date_time():
+    return time.strftime("%Y.%M.%d %H:%M:%S", time.localtime())
 
 def str_to_list(send_str):  # функция, которая из последовательности шестнадцетиричных слов в строке без
     send_list = []  # идентификатора 0x делает лист шестнадцетиричных чисел

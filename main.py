@@ -18,14 +18,15 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         self.setWindowIcon(QtGui.QIcon('main_icon.png'))
+        # ## КПА ## #
+        self.kpa = kpa_ske_lr.Data()
         #
         self.config = None
         self.config_file = None
         self.log_file = None
-        self.create_log_file()
-
-        # ## КПА ## #
-        self.kpa = kpa_ske_lr.Data()
+        self.kpa_adc_log_file = None
+        self.mko_log_file = None
+        self.recreate_log_files()
         # # buttons
         self.ClearLogPButt.clicked.connect(self.LogTEdit.clear)
         #
@@ -112,7 +113,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.ske_graph_layout = ske_graph.Layout(self.SKE_GrView)
         self.SKE_GrView.setLayout(self.ske_graph_layout)
         # ## Общие ## #
-        self.logsUpdatePButt.clicked.connect(self.create_log_file)
+        self.logsUpdatePButt.clicked.connect(self.recreate_log_files)
         self.connectPButt.clicked.connect(self.kpa.reconnect)
         self.disconnectPButt.clicked.connect(self.kpa.disconnect)
         #
@@ -451,24 +452,39 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         pass
 
     # LOGs #
-    def create_log_file(self):
+    def create_log_file(self, file=None, prefix=""):
         dir_name = "Logs"
         sub_dir_name = dir_name + "\\" + "Лог КПА СКЭ-ЛР от " + time.strftime("%Y_%m_%d", time.localtime())
+        sub_sub_dir_name = sub_dir_name + "\\" + "Лог " + prefix + " КПА СКЭ-ЛР от " + time.strftime("%Y_%m_%d",
+                                                                                                     time.localtime())
         try:
-            os.makedirs(sub_dir_name)
+            os.makedirs(sub_sub_dir_name)
         except (OSError, AttributeError) as error:
             pass
         try:
-            if self.log_file:
-                self.log_file.close()
+            if file:
+                file.close()
         except (OSError, NameError, AttributeError) as error:
             pass
-        file_name = sub_dir_name + "\\" + "Лог КПА СКЭ-ЛР от " + time.strftime("%Y_%m_%d %H-%M-%S",
+        file_name = sub_sub_dir_name + "\\" + prefix + " КПА СКЭ-ЛР от " + time.strftime("%Y_%m_%d %H-%M-%S",
                                                                                time.localtime()) + ".txt"
-        self.log_file = open(file_name, 'a')
+        file = open(file_name, 'a')
+        return file
 
-    def close_log_file(self):
-        self.log_file.close()
+    def close_log_file(self, file=None):
+        if file:
+            try:
+                file.close()
+            except (OSError, NameError, AttributeError) as error:
+                pass
+        pass
+
+    def recreate_log_files(self):
+        self.log_file = self.create_log_file(prefix="ВШ")
+        self.kpa_adc_log_file = self.create_log_file(prefix="АЦП")
+        self.kpa_adc_log_file.write(self.kpa.get_adc_data_title() + "\n")
+        self.mko_log_file = self.create_log_file(prefix="МПИ")
+
         pass
 
     # Общией функции #
@@ -481,6 +497,15 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             self.log_file.write(text + "\n")
             self.log_file.flush()
             self.LogTEdit.append(text)
+        # обновление лога АЦП КПА
+        for text in self.kpa.get_adc_log():
+            self.kpa_adc_log_file.write(text + "\n")
+            self.kpa_adc_log_file.flush()
+        # обновление лога МПИ
+        for text in self.kpa.get_mko_log():
+            self.mko_log_file.write(text + "\n")
+            self.mko_log_file.flush()
+        #
         all_text = self.LogTEdit.toPlainText()
         if len(all_text) > 100000:
             self.LogTEdit.clear()
@@ -515,7 +540,9 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
 
     def closeEvent(self, event):
         self.close()
-        self.close_log_file()
+        self.close_log_file(file=self.log_file)
+        self.close_log_file(file=self.kpa_adc_log_file)
+        self.close_log_file(file=self.mko_log_file)
         self.close_test_file()
         pass
 
