@@ -57,14 +57,13 @@ def calc_to_list(buf, buf_len, endian="big"):
     return [(int_crc16 >> 8) & 0xFF, (int_crc16 >> 0) & 0xFF]
 
 
-def calc_str(buf_string, endian="little"):
+def calc_str(buf_string, endian="big"):
     pattern = re.compile(r"([A-F0-9]{4})")
     data_list = pattern.findall(buf_string.replace(" ", "").upper())
     data_int = []
     for var in data_list:
         data_int.append(int(var, 16))
     crc16 = calc(data_int, len(data_int), endian=endian)
-    crc16 = calc(data_int, len(data_int), endian="big")
     return crc16
 
 

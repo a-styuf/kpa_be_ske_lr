@@ -52,7 +52,6 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         # контейнеры для вставки юнитов
         self.units_widgets = mko_unit.Widgets(self.scrollAreaWidgetContents, mko=self.kpa)
         self.units_widgets.action.connect(self.data_table_slot)
-        self.mkoPollingPBar.setValue(0)
         self.setLayout(self.units_widgets)
         # привязка сигналов к кнопкам
         #
@@ -62,8 +61,6 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         #
         self.LoadCfgPButt.clicked.connect(self.load_cfg)
         self.SaveCfgPButt.clicked.connect(self.save_cfg)
-        #
-        self.mkoPollingPButt.clicked.connect(self.mko_polling)
         #
         self.cycleTimer = QtCore.QTimer()
         self.cycleTimer.timeout.connect(self.start_mko_cycle)
@@ -120,15 +117,6 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.load_init_cfg()
 
     # МКО #
-    def mko_polling(self):
-        for i in range(len(self.units_widgets.unit_list)):
-            time.sleep(0.5)
-            if self.units_widgets.unit_list[i].RWBox.currentText():  # read
-                self.units_widgets.unit_list[i].action()
-                self.mkoPollingPBar.setValue(100 * i / len(self.units_widgets.unit_list))
-                QtCore.QCoreApplication.processEvents()
-        self.mkoPollingPBar.setValue(100)
-
     def start_mko_cycle(self):
         period = self.cycleIntervalSBox.value()
         self.cycleTimer.setInterval(period * 1000)
@@ -452,11 +440,11 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         pass
 
     # LOGs #
-    def create_log_file(self, file=None, prefix=""):
+    def create_log_file(self, file=None, prefix="", extension=".txt"):
         dir_name = "Logs"
-        sub_dir_name = dir_name + "\\" + "Лог КПА СКЭ-ЛР от " + time.strftime("%Y_%m_%d", time.localtime())
-        sub_sub_dir_name = sub_dir_name + "\\" + "Лог " + prefix + " КПА СКЭ-ЛР от " + time.strftime("%Y_%m_%d",
-                                                                                                     time.localtime())
+        sub_dir_name = dir_name + "\\" + time.strftime("%Y_%m_%d", time.localtime()) + " Лог КПА СКЭ-ЛР"
+        sub_sub_dir_name = sub_dir_name + "\\" + time.strftime("%Y_%m_%d %H-%M-%S ",
+                                                               time.localtime()) + "Лог КПА СКЭ-ЛР"
         try:
             os.makedirs(sub_sub_dir_name)
         except (OSError, AttributeError) as error:
@@ -466,8 +454,8 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
                 file.close()
         except (OSError, NameError, AttributeError) as error:
             pass
-        file_name = sub_sub_dir_name + "\\" + prefix + " КПА СКЭ-ЛР от " + time.strftime("%Y_%m_%d %H-%M-%S",
-                                                                               time.localtime()) + ".txt"
+        file_name = sub_sub_dir_name + "\\" + time.strftime("%Y_%m_%d %H-%M-%S ",
+                                                            time.localtime()) + prefix + " КПА СКЭ-ЛР" + extension
         file = open(file_name, 'a')
         return file
 
@@ -481,7 +469,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
 
     def recreate_log_files(self):
         self.log_file = self.create_log_file(prefix="ВШ")
-        self.kpa_adc_log_file = self.create_log_file(prefix="АЦП")
+        self.kpa_adc_log_file = self.create_log_file(prefix="АЦП", extension=".csv")
         self.kpa_adc_log_file.write(self.kpa.get_adc_data_title() + "\n")
         self.mko_log_file = self.create_log_file(prefix="МПИ")
 

@@ -3,6 +3,7 @@ import copy
 import time
 import threading
 import luna_data
+import crc16
 import numpy as np
 
 
@@ -284,10 +285,14 @@ class Data:
         mko_str = ""
         for var in self.mko_data:
             mko_data_str += "%04X " % var
+        crc16_result = crc16.calc_str(mko_data_str[:-5], endian="big")
+        crc16_state = crc16.calc_str(mko_data_str[:], endian="big")
+        crc16_result_str = "OK" if crc16_state == 0 else "BAD - 0x%04X" % crc16_result
         mko_str += get_date_time() + ";" + \
                    " CW:%04X" % self.mko_cw + "; " + \
                    " AW:%04X" % self.mko_aw + "; " + \
-                   " D:" + mko_data_str + ";"
+                   " D:" + mko_data_str + ";" + \
+                   " CRC16:" + crc16_result_str + ";"
         return mko_str
 
     def get_mko_log(self):
