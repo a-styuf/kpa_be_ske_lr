@@ -49,7 +49,7 @@ class Data:
         # ## GPIO ## #
         self.gpio_a, self.gpio_b = 0x00, 0x00
         # ## MKO ## #
-        self.mko_addr = 22  # адрес ОУ для БЭ СКЭ-ЛР
+        self.mko_addr = 13  # адрес ОУ для БЭ СКЭ-ЛР
         self.mko_comm_subaddr = 0x11  # подадрес для отправки комманд
         self.mko_bus = "mko_a"
         self.mko_cw = 0x0000
@@ -174,7 +174,7 @@ class Data:
         self.serial.request(req_type="gener_sign", data=data)
 
     def send_mko_comm_message(self, c_type="start_mem_read", data=None):  # ВАЖНО! data - list of int16
-        self.mko_addr, self.mko_comm_subaddr = 22, 17
+        self.mko_addr, self.mko_comm_subaddr = 13, 17
         if c_type == "init_cm":
             comm_data = [0x0002, 0x0000, 0x0000, 0x0000]
         elif c_type == "meas_interval":
@@ -189,7 +189,7 @@ class Data:
         pass
 
     def send_mko_tech_comm_message(self, c_type="cm_param", data=None):  # ВАЖНО! data - list of int16
-        self.mko_addr, self.mko_comm_subaddr = 22, 30
+        self.mko_addr, self.mko_comm_subaddr = 13, 30
         if c_type == "cm_param":
             comm_data = [0x0001, 0x0000, 0x0000, 0x0000]
         elif c_type == "mirror":
@@ -375,24 +375,23 @@ class Data:
         else:
             self.dep_0v_on()
             t_v_str = "@0"
-        # # читаем показания dep
-        self.test_stop_event.wait(meas_interval*2)
+        # читаем показания dep
+        self.test_stop_event.wait(meas_interval*7)
         if self.test_stop_event.isSet():
             raise Exception('Принудительное завершение работы')
         self.read_from_rt(self.mko_addr, 0x0009, 32)
         time.sleep(0.5)
         cw, aw, data = self.get_mko_data()
         table_data = luna_data.frame_parcer(data)
-        # print(table_data)
         self.dep_0v_on()  # отключаем тестовые воздействия на ДЭП
         if aw == cw & 0xF800:
             for var in table_data:
-                if "U1 ДЭП1" in var[0]: self._set_test_data("U ДЭП1" + t_v_str, var[1])
-                elif "F1 ДЭП1" in var[0]: self._set_test_data("F ДЭП1" + t_v_str, var[1])
-                elif "T1 ДЭП1" in var[0]: self._set_test_data("T ДЭП1" + t_v_str, var[1])
-                elif "U1 ДЭП2" in var[0]: self._set_test_data("U ДЭП2" + t_v_str, var[1])
-                elif "F1 ДЭП2" in var[0]: self._set_test_data("F ДЭП2" + t_v_str, var[1])
-                elif "T1 ДЭП2" in var[0]: self._set_test_data("T ДЭП2" + t_v_str, var[1])
+                if "U6 ДЭП1" in var[0]: self._set_test_data("U ДЭП1" + t_v_str, var[1])
+                elif "F6 ДЭП1" in var[0]: self._set_test_data("F ДЭП1" + t_v_str, var[1])
+                elif "T6 ДЭП1" in var[0]: self._set_test_data("T ДЭП1" + t_v_str, var[1])
+                elif "U6 ДЭП2" in var[0]: self._set_test_data("U ДЭП2" + t_v_str, var[1])
+                elif "F6 ДЭП2" in var[0]: self._set_test_data("F ДЭП2" + t_v_str, var[1])
+                elif "T6 ДЭП2" in var[0]: self._set_test_data("T ДЭП2" + t_v_str, var[1])
             return 1
         else:
             return -1

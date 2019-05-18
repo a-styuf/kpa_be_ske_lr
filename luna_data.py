@@ -225,12 +225,12 @@ def dep_field(data, a=0.1, b=0):
     scale = data >> 15
     mantissa = (data & 0x3FF)
     if (mantissa & 0x200) == 0:
-        # mantissa = - mantissa
+        mantissa = - mantissa
         pass
     else:
         mantissa = (((~mantissa) + 1) & 0x3FF)
     degree = (data >> 10) & 0x1F
-    sign = (data >> 9) & 1
+    sign = ((data >> 9) & 0x01) & 1
     field = (mantissa * (2 ** (23 - degree)) * (10 ** (-scale)) / (2 ** 18)) * a + b
     return (-1**sign) * field
 

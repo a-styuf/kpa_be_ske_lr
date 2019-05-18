@@ -273,7 +273,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             #
             testing_status, testing_color = "Норма", "palegreen"
             # пишем статус начала проверки
-            self.SKE_SkeTestLabel.setText("Тестирование %.1f мин" % ((22 + meas_interval*11)/60))
+            self.SKE_SkeTestLabel.setText("Тестирование %.1f мин" % ((22 + meas_interval*23)/60))
             self.SKE_SkeTestLabel.setStyleSheet("background-color: " + "gold")
             #
             self.SKE_testResultTWidget.setRowCount(0)
