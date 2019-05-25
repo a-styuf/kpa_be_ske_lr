@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'main_win.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_main_win(object):
     def setupUi(self, main_win):
@@ -1217,7 +1218,7 @@ class Ui_main_win(object):
         main_win.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(main_win)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(main_win)
 
     def retranslateUi(self, main_win):
@@ -1332,4 +1333,5 @@ class Ui_main_win(object):
         item = self.mkoDataTable.horizontalHeaderItem(1)
         item.setText(_translate("main_win", "Значение"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.mkoTab), _translate("main_win", "МПИ"))
+
 

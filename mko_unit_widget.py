@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'mko_unit_widget.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_Frame(object):
     def setupUi(self, Frame):
@@ -245,4 +246,5 @@ class Ui_Frame(object):
         self.DataTable.setSortingEnabled(__sortingEnabled)
         self.AddresLabel.setText(_translate("Frame", "Адрес:"))
         self.label.setText(_translate("Frame", "0"))
+
 

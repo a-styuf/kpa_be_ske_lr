@@ -230,9 +230,9 @@ def dep_field(data, a=0.1, b=0):
     else:
         mantissa = (((~mantissa) + 1) & 0x3FF)
     degree = (data >> 10) & 0x1F
-    sign = ((data >> 9) & 0x01) & 1
+    sign = ((data >> 9) & 0x01)
     field = (mantissa * (2 ** (23 - degree)) * (10 ** (-scale)) / (2 ** 18)) * a + b
-    return (-1**sign) * field
+    return (-1**(sign+1)) * field
 
 
 def dep_freq(data):
