@@ -195,12 +195,12 @@ def frame_parcer(frame):
                     # dbg_str += "freq: %.3f; 0х%04X;\t" % (dep_freq((frame[8 + 4 * i] >> 8) & 0xFF), ((frame[8 + 4 * i] >> 8) & 0xFF))
                     # dbg_str += "temp: %.3f; 0х%04X;\t" % (c_int8(((frame[8 + 4 * i] >> 0) & 0xFF)).value, ((frame[8 + 4 * i] >> 0) & 0xFF))
                     # print(dbg_str)
-                    data.append(["U%d ДЭП1, кВ/м" % (i+1), "%d" % dep_field(frame[5 + 4 * i])])
-                    data.append(["F%d ДЭП1, Гц" % (i+1), "%d" % dep_freq((frame[6 + 4 * i] >> 8) & 0xFF)])
+                    data.append(["U%d ДЭП1, кВ/м" % (i+1), "%.2f" % dep_field(frame[5 + 4 * i])])
+                    data.append(["F%d ДЭП1, Гц" % (i+1), "%.1f" % dep_freq((frame[6 + 4 * i] >> 8) & 0xFF)])
                     data.append(["T%d ДЭП1, °C" % (i+1), "%d" % c_int8(((frame[6 + 4 * i] >> 0) & 0xFF)).value])
                     #
-                    data.append(["U%d ДЭП2, кВ" % (i+1), "%d" % dep_field(frame[7 + 4 * i])])
-                    data.append(["F%d ДЭП2, Гц" % (i+1), "%d" % dep_freq((frame[8 + 4 * i] >> 8) & 0xFF)])
+                    data.append(["U%d ДЭП2, кВ" % (i+1), "%.2f" % dep_field(frame[7 + 4 * i])])
+                    data.append(["F%d ДЭП2, Гц" % (i+1), "%.1f" % dep_freq((frame[8 + 4 * i] >> 8) & 0xFF)])
                     data.append(["T%d ДЭП2, °C" % (i+1), "%d" % c_int8(((frame[8 + 4 * i] >> 0) & 0xFF)).value])
                     pass
                 #
