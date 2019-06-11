@@ -144,9 +144,10 @@ class MySerial(serial.Serial):
                         try:
                             self.write(bytes(data_to_send))
                             nansw = 1
-                            # print(data_to_send)
-                        except serial.serialutil.SerialException:
+                            # print(bytes_array_to_str(data_to_send))
+                        except serial.serialutil.SerialException as error:
                             self.state = -3
+                            # print(error)
                             pass
                         with self.log_lock:
                             self.log_buffer.append(get_time() + bytes_array_to_str(bytes(data_to_send)))
@@ -164,11 +165,13 @@ class MySerial(serial.Serial):
                             try:
                                 read_data = self.read(128)
                                 self.read_data = read_data
-                            except (TypeError, serial.serialutil.SerialException, AttributeError):
+                            except (TypeError, serial.serialutil.SerialException, AttributeError) as error:
                                 self.state = -3
+                                # print(error)
                                 # read_data = bytearray(b"")
                                 pass
                             if read_data:
+                                # print(bytes_array_to_str(read_data))
                                 with self.log_lock:
                                     self.log_buffer.append(get_time() + bytes_array_to_str(read_data))
                                     # print("read: %.3f" % time.clock())

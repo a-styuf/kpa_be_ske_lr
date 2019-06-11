@@ -127,6 +127,7 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
             return
         else:
             self.cycle_step_count -= 1
+            # print("%04X" % self.kpa.mko_aw)
             if self.cycle_step_count == 0:
                 self.stop_mko_cycle()
         elapsed_time = period * self.cycle_step_count
@@ -395,10 +396,10 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         elif self.test_count % 3 == 2:
             self.test_signal_dep(voltage=0)
         self.kpa.mpp_test_sign(dev="all",
-                               u_max=(self.test_count % 200),  # от нуля до 15 В с шагом 1 В
-                               u_min=0,  # от нуля до 10 вольт с шагом в 0.1 В
+                               u_max=1 * (self.test_count % 15),  # от нуля до 15 В с шагом 1 В
+                               u_min=0.1 * (self.test_count % 15),  # от нуля до 1.5 вольта с шагом в 0.1 В
                                T=1000,
-                               t=1*(self.test_count % 10),  # частота от 1/200мкс до 1/10мс
+                               t=1*(self.test_count % 15),  # частота от 1/200мкс до 1/10мс
                                N=self.test_count % 15,  # от 1-го пика до 15
                                M=1)  # один запуск
         self.test_count += 1
@@ -472,7 +473,6 @@ class MainWindow(QtWidgets.QMainWindow, main_win.Ui_main_win):
         self.kpa_adc_log_file = self.create_log_file(prefix="АЦП", extension=".csv")
         self.kpa_adc_log_file.write(self.kpa.get_adc_data_title() + "\n")
         self.mko_log_file = self.create_log_file(prefix="МПИ")
-
         pass
 
     # Общией функции #

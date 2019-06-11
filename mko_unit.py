@@ -137,6 +137,7 @@ class Widget(QtWidgets.QFrame, mko_unit_widget.Ui_Frame):
                 return
             self.aw_err_cnt += 1
             self.state = 2
+        # print("error percentage: %.1f" % (100*self.aw_err_cnt/self.total_cnt))
         self.ActionButton.setEnabled(True)
         self.state_check()
         pass

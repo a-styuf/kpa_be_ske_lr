@@ -9,7 +9,7 @@ import numpy as np
 
 class Data:
     def __init__(self):
-        self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH06VN4D", "AH06VN4E"])
+        self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH06VN4D", "AH06VN4E", "AH06VN4F"])
         self.serial.open_id()
         self.adc_name = ["КС, Ом", "АМКО, В", "Норма ЦМ, В", "КПБЭ, В",
                          "U БЭ, В", "I БЭ, мА", "Канал 6, кв", "Канал 7, кв",
@@ -203,6 +203,7 @@ class Data:
 
     def send_to_rt(self, addr, subaddr, data, leng):
         self.mko_cw = ((addr & 0x1F) << 11) + (0x00 << 10) + ((subaddr & 0x1F) << 5) + (leng & 0x1F)
+        self.mko_aw = 0x0000
         rt_data = [(self.mko_cw >> 8) & 0xFF, (self.mko_cw >> 0) & 0xFF]
         self.mko_data = data
         bytes_data = []
@@ -216,6 +217,7 @@ class Data:
 
     def read_from_rt(self, addr, subaddr, leng):
         self.mko_cw = ((addr & 0x1F) << 11) + (0x01 << 10) + ((subaddr & 0x1F) << 5) + (leng & 0x1F)
+        self.mko_aw = 0x0000
         rt_data = [(self.mko_cw >> 8) & 0xFF, (self.mko_cw >> 0) & 0xFF]
         self.mko_bus = "mko_b" if self.mko_bus == "mko_a" else "mko_a"
         self.serial.request(req_type=self.mko_bus, data=rt_data)
@@ -328,7 +330,6 @@ class Data:
         with self.serial.ans_data_lock:
             mko_data = copy.deepcopy(self.mko_data)
             mko_aw = self.mko_aw
-            self.mko_aw = 0x0000
         return self.mko_cw, mko_aw, mko_data
 
     def get_state_string(self):
