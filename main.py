@@ -1,6 +1,6 @@
 import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtGui import QColor
 import main_win
 import kpa_ske_lr
 import mko_unit
