@@ -14,7 +14,7 @@ class MySerial(serial.Serial):
         self.timeout = 0.03
         self.port = "COM0"
         self.row_data = b""
-        self.read_timeout = 0.3
+        self.read_timeout = 0.5
         for key in sorted(kw):
             if key == "serial_numbers":
                 self.serial_numbers = kw.pop(key)
@@ -141,6 +141,9 @@ class MySerial(serial.Serial):
                         with self.com_send_lock:
                             data_to_send = self.com_queue.pop(0)
                             comm = data_to_send[4]
+                        if self.in_waiting:
+                            print(self.in_waiting)
+                            self.read(self.in_waiting)
                         try:
                             self.write(bytes(data_to_send))
                             nansw = 1
