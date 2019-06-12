@@ -142,6 +142,7 @@ class MySerial(serial.Serial):
                             data_to_send = self.com_queue.pop(0)
                             comm = data_to_send[4]
                         try:
+                            self.read(self.in_waiting)
                             self.write(bytes(data_to_send))
                             nansw = 1
                             # print(bytes_array_to_str(data_to_send))
