@@ -1147,10 +1147,10 @@ class Ui_main_win(object):
         self.cycleIntervalSBox = QtWidgets.QDoubleSpinBox(self.mkoTab)
         self.cycleIntervalSBox.setMinimumSize(QtCore.QSize(0, 30))
         self.cycleIntervalSBox.setDecimals(1)
-        self.cycleIntervalSBox.setMinimum(0.5)
+        self.cycleIntervalSBox.setMinimum(0.7)
         self.cycleIntervalSBox.setMaximum(100000.0)
         self.cycleIntervalSBox.setSingleStep(0.1)
-        self.cycleIntervalSBox.setProperty("value", 0.5)
+        self.cycleIntervalSBox.setProperty("value", 0.7)
         self.cycleIntervalSBox.setObjectName("cycleIntervalSBox")
         self.gridLayout_6.addWidget(self.cycleIntervalSBox, 10, 1, 1, 1)
         self.cycleNumLabel = QtWidgets.QLabel(self.mkoTab)
@@ -1218,7 +1218,7 @@ class Ui_main_win(object):
         main_win.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(main_win)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(main_win)
 
     def retranslateUi(self, main_win):

@@ -128,7 +128,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="SKETab">
        <attribute name="title">
@@ -2582,7 +2582,7 @@ p, li { white-space: pre-wrap; }
              <number>1</number>
             </property>
             <property name="minimum">
-             <double>0.500000000000000</double>
+             <double>0.700000000000000</double>
             </property>
             <property name="maximum">
              <double>100000.000000000000000</double>
@@ -2591,7 +2591,7 @@ p, li { white-space: pre-wrap; }
              <double>0.100000000000000</double>
             </property>
             <property name="value">
-             <double>0.500000000000000</double>
+             <double>0.700000000000000</double>
             </property>
            </widget>
           </item>
