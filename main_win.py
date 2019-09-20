@@ -1192,10 +1192,12 @@ class Ui_main_win(object):
         self.mkoDataTable.setSizePolicy(sizePolicy)
         self.mkoDataTable.setMinimumSize(QtCore.QSize(260, 0))
         self.mkoDataTable.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.mkoDataTable.setWordWrap(False)
         self.mkoDataTable.setRowCount(20)
         self.mkoDataTable.setObjectName("mkoDataTable")
         self.mkoDataTable.setColumnCount(2)
         item = QtWidgets.QTableWidgetItem()
+        item.setText("Имя")
         font = QtGui.QFont()
         font.setPointSize(7)
         item.setFont(font)
@@ -1218,7 +1220,7 @@ class Ui_main_win(object):
         main_win.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(main_win)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(main_win)
 
     def retranslateUi(self, main_win):
@@ -1328,8 +1330,6 @@ class Ui_main_win(object):
         self.cycleElapsedTimeTEdit.setDisplayFormat(_translate("main_win", "H:mm:ss"))
         self.cycleFullTimeLabel.setText(_translate("main_win", "Осталось , c"))
         self.cycleStopPButt.setText(_translate("main_win", "Оставновить цикл"))
-        item = self.mkoDataTable.horizontalHeaderItem(0)
-        item.setText(_translate("main_win", "Имя"))
         item = self.mkoDataTable.horizontalHeaderItem(1)
         item.setText(_translate("main_win", "Значение"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.mkoTab), _translate("main_win", "МПИ"))

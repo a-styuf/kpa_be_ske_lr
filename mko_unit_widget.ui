@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>750</width>
-    <height>140</height>
+    <height>160</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -322,13 +322,13 @@
      <x>330</x>
      <y>0</y>
      <width>421</width>
-     <height>130</height>
+     <height>151</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
      <width>0</width>
-     <height>130</height>
+     <height>150</height>
     </size>
    </property>
    <property name="font">
@@ -528,9 +528,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>129</y>
+     <y>150</y>
      <width>741</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="lineWidth">
