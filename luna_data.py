@@ -253,17 +253,17 @@ def frame_parcer(frame):
                 pass
             elif frame[1] == 0x0C71 or frame[1] == 0x0C72 or frame[1] == 0x0C73 or frame[1] == 0x0C74 or frame[1] == 0x0C75 or frame[1] == 0x0C76:  # МПП1-2 или МПП3-4 или МПП5-6
                 # подготовка
-                if frame[1] == 0x0C61:
+                if frame[1] == 0x0C71:
                     mpp_num, a, b = 1, 4.851E-2, -99.26
-                elif frame[1] == 0x0C62:
+                elif frame[1] == 0x0C71:
                     mpp_num, a, b = 2, 1.408E-2, -5.986
-                elif frame[1] == 0x0C63:
+                elif frame[1] == 0x0C71:
                     mpp_num, a, b = 3, 1.375E-2, -5.349
-                elif frame[1] == 0x0C64:
+                elif frame[1] == 0x0C71:
                     mpp_num, a, b = 4, 1.413E-2, -6.334
-                elif frame[1] == 0x0C65:
+                elif frame[1] == 0x0C71:
                     mpp_num, a, b = 5, 7.302E-3, -14.89
-                elif frame[1] == 0x0C66:
+                elif frame[1] == 0x0C71:
                     mpp_num, a, b = 6, 7.447E-3, -15.23
                 else:
                     mpp_num, a, b = 5, 7.447E-3, -15.23

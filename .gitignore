@@ -5,6 +5,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# my ignore
+build/
+.idea/
+
 # C extensions
 *.so
 
