@@ -19,12 +19,18 @@ class Data:
         self._adc_data_state = [0 for i in range(len(self.adc_name))]
         # ## АЦП ## #
         # границы для определения статуса
-        self.adc_data_top = [20, 3.0, 3.0, 3.0, 32.8, 330, 0, 0,
-                             0, 0, 0, 0, 0, 0, 0, 0]
-        self.adc_data_bot = [20, 1.0, 1.0, 1.0, 22.5, 70, 0, 0,
-                             0, 0, 0, 0, 0, 0, 0, 0]
-        self.adc_data_nodata = [0, 0, 0, 0, 0, 0, 0, 0,
-                                0, 0, 0, 0, 0, 0, 0, 0]
+        self.adc_data_top = [20, 3.0, 3.0, 3.0,
+                             32.8, 330, 0, 0,
+                             0, 0, 0, 0,
+                             0, 0, 0, 0]
+        self.adc_data_bot = [20, 1.0, 1.0, 1.0,
+                             22.5, 70, 0, 0,
+                             0, 0, 0, 0,
+                             0, 0, 0, 0]
+        self.adc_data_nodata = [0, 0, 0, 0,
+                                0, 0, 0, 0,
+                                0, 0, 0, 0,
+                                0, 0, 0, 0]
         # калибровка ацп Val = a*x + b -5,57 9740
         self.adc_a = [-0.9765, 0.0027, 0.0027, 0.0027, 0.0438, 0.4914, 1.0, 1.0,
                       1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
@@ -78,12 +84,12 @@ class Data:
                               75, 1, 1,
                               13, 13, 1,
                               13, 15, 15,
-                              -20, 170, 85,
-                              -20, 170, 85,
-                              -10, 170, 85,
-                              -10, 170, 85,
                               0, 170, 85,
                               0, 170, 85,
+                              10, 170, 85,
+                              10, 170, 85,
+                              20, 170, 85,
+                              20, 170, 85,
                               4000, 240]
         self.test_data_bot = [23, 170, 5.5,
                               1.0, 1.0, 1.0,
@@ -91,12 +97,12 @@ class Data:
                               40, 0, 0,
                               7, 7, -1,
                               7, -15, -15,
+                              -20, 120, -50,
+                              -20, 120, -50,
+                              -10, 120, -50,
+                              -10, 120, -50,
                               0, 120, -50,
                               0, 120, -50,
-                              10, 120, -50,
-                              10, 120, -50,
-                              20, 120, -50,
-                              20, 120, -50,
                               0, 9]
         self.test_color_teamplate = [["lightcoral", "palegreen", "lightcoral", "ghostwhite"] for i in
                                      range(len(self.test_data_name))]
@@ -339,7 +345,7 @@ class Data:
     def mpp_read_algorithm(self, meas_interval=1):
         try:
             # # задаем воздействие с КПА
-            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=5000, t=1, N=20, M=meas_interval)
+            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=5000, t=1, N=20, M=meas_interval-1)
             # # читаем кадры с матрицей
             self.test_stop_event.wait(meas_interval*2)
             if self.test_stop_event.isSet():
@@ -350,10 +356,10 @@ class Data:
             table_data = luna_data.frame_parcer(data)
             if aw == cw & 0xF800:
                 for report in table_data:
-                    if "МПП3@МПП3" in report[0]: self._set_test_data("Максимум Uизм2, В", report[1])
-                    elif "МПП4@МПП4" in report[0]: self._set_test_data("Максимум Uизм3, В", report[1])
-                    elif "МПП1@МПП1" in report[0]: self._set_test_data("Максимум ДРП, В", report[1])
+                    if "МПП1@МПП1" in report[0]: self._set_test_data("Максимум ДРП, В", report[1])
                     elif "МПП2@МПП2" in report[0]: self._set_test_data("Максимум ДНП, В", report[1])
+                    elif "МПП3@МПП3" in report[0]: self._set_test_data("Максимум Uизм2, В", report[1])
+                    elif "МПП4@МПП4" in report[0]: self._set_test_data("Максимум Uизм3, В", report[1])
                     elif "МПП5@МПП5" in report[0]: self._set_test_data("Максимум РП1, В", report[1])
                     elif "МПП6@МПП6" in report[0]: self._set_test_data("Максимум РП2, В", report[1])
             else:
