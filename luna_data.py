@@ -8,7 +8,7 @@
 '''
 
 import crc16
-from ctypes import c_int8
+from ctypes import c_int8, c_int32
 import threading
 
 # замок для мультипоточного запроса разбора данных
@@ -44,7 +44,7 @@ def frame_parcer(frame):
                 data.append(["Ошибки МКО", "%d" % frame[11]])
                 data.append(["Счетчик включений", "%d" % frame[12]])
                 #
-                data.append(["Разность времени, c", "%d" % ((frame[13] << 16) + frame[14])])
+                data.append(["Разность времени, c", "%d" % c_int32((frame[13] << 16) + frame[14]).value])
                 data.append(["Кол-во синхрон., шт", "%d" % (frame[15] & 0xFF)])
 
                 data.append(["Ошибки ВШ", "%d" % ((frame[16] >> 8) & 0xFF)])

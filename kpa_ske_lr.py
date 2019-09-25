@@ -176,7 +176,8 @@ class Data:
                 ((int(u_min * 256)) >> 8) & 0xFF, ((int(u_min * 256)) >> 0) & 0xFF,
                 ((int(N)) >> 8) & 0xFF, ((int(N)) >> 0) & 0xFF,
                 ((int(T)) >> 8) & 0xFF, ((int(T)) >> 0) & 0xFF,
-                M & 0xFF]
+                int(M) & 0xFF]
+        # print(data)
         self.serial.request(req_type="gener_sign", data=data)
 
     def send_mko_comm_message(self, c_type="start_mem_read", data=None):  # ВАЖНО! data - list of int16
@@ -345,15 +346,15 @@ class Data:
     def mpp_read_algorithm(self, meas_interval=1):
         try:
             # # задаем воздействие с КПА
-            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=5000, t=1, N=20, M=meas_interval-1)
-            # # читаем кадры с матрицей
-            self.test_stop_event.wait(meas_interval*2)
-            if self.test_stop_event.isSet():
-                raise Exception('Принудительное завершение работы')
+            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=1000, t=1, N=5, M=1)
+            self.test_stop_event.wait(meas_interval-1)
+            self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=1000, t=1, N=5, M=1)
+            self.test_stop_event.wait(meas_interval-1)
             self.read_from_rt(self.mko_addr, 7, 32)
             time.sleep(0.5)
             cw, aw, data = self.get_mko_data()
             table_data = luna_data.frame_parcer(data)
+            # print(table_data)
             if aw == cw & 0xF800:
                 for report in table_data:
                     if "МПП1@МПП1" in report[0]: self._set_test_data("Максимум ДРП, В", report[1])
