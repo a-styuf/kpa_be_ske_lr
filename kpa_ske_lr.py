@@ -9,7 +9,7 @@ import numpy as np
 
 class Data:
     def __init__(self):
-        self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH06VN4D", "AH06VN4E", "AH06VN4F"])
+        self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH06VN4D", "AH06VN4E", "AH06VN4F", "AH06VN4IA", "AH06VN4HA"])
         self.serial.open_id()
         self.adc_name = ["КС, Ом", "АМКО, В", "Норма ЦМ, В", "КПБЭ, В",
                          "U БЭ, В", "I БЭ, мА", "Канал 6, кв", "Канал 7, кв",
@@ -19,20 +19,20 @@ class Data:
         self._adc_data_state = [0 for i in range(len(self.adc_name))]
         # ## АЦП ## #
         # границы для определения статуса
-        self.adc_data_top = [20, 3.0, 3.0, 3.0, 32.8, 330, 0, 0,
+        self.adc_data_top = [4.5, 3.0, 3.0, 3.0, 32.8, 330, 0, 0,
                              0, 0, 0, 0, 0, 0, 0, 0]
-        self.adc_data_bot = [20, 1.0, 1.0, 1.0, 22.5, 70, 0, 0,
+        self.adc_data_bot = [1.5, 1.0, 1.0, 1.0, 22.5, 70, 0, 0,
                              0, 0, 0, 0, 0, 0, 0, 0]
         self.adc_data_nodata = [0, 0, 0, 0, 0, 0, 0, 0,
                                 0, 0, 0, 0, 0, 0, 0, 0]
         # калибровка ацп Val = a*x + b -5,57 9740
-        self.adc_a = [-0.9765, 0.0027, 0.0027, 0.0027, 0.0438, 0.4914, 1.0, 1.0,
+        self.adc_a = [0.0027, 0.0027, 0.0027, 0.0027, 0.0438, 0.4914, 1.0, 1.0,
                       1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-        self.adc_b = [1247.1, -0.26,  -0.26,  -0.26, -10.926, -128.89, 0, 0,
+        self.adc_b = [-0.26, -0.26,  -0.26,  -0.26, -10.926, -128.89, 0, 0,
                       0, 0, 0, 0, 0, 0, 0, 0]
         # цветовая схема:  ниже нижней границы - между нижней и верхней - выше верхней - нет данных
         self.adc_color = [["lightcoral", "palegreen", "palegreen", "ghostwhite"] for i in range(len(self.adc_name))]
-        self.adc_color[0] = ["palegreen", "lightcoral", "lightcoral", "ghostwhite"]  # KC
+        self.adc_color[0] = ["lightcoral", "lightcoral","palegreen", "ghostwhite"]  # KC
         self.adc_color[1] = ["palegreen", "lightcoral", "mediumturquoise", "ghostwhite"]  # AMKO
         self.adc_color[2] = ["palegreen", "lightcoral", "mediumturquoise", "ghostwhite"]  # НЦМ
         self.adc_color[3] = ["palegreen", "lightcoral", "mediumturquoise", "ghostwhite"]  # КПБЭ
@@ -117,13 +117,16 @@ class Data:
         pass
 
     def reconnect(self):
-        self.serial.close_id()
-        time.sleep(0.05)
+        self.disconnect()
         self.serial.open_id()
         pass
 
     def disconnect(self):
-        self.serial.close_id()
+        self.serial._close_event.set()
+        time.sleep(0.1)
+        del self.serial
+        self.serial = kpa_ske_lr_serial.MySerial(
+            serial_numbers=["AH06VN4D", "AH06VN4E", "AH06VN4F", "AH06VN4IA", "AH06VN4HA"])
         pass
 
     def get_adc(self):
@@ -227,26 +230,29 @@ class Data:
         while True:
             time.sleep(0.01)
             data = []
-            with self.serial.ans_data_lock:
-                if self.serial.answer_data:
-                    data = copy.deepcopy(self.serial.answer_data)
-                    self.serial.answer_data = []
-            for var in data:
-                if var[0] == 0x04:  # получение данных АЦП
-                    for i in range(len(var[1]) // 2):
-                        self.adc_data[i] = self.adc_a[i]*(int.from_bytes(var[1][2*i:2*i+2], signed=False, byteorder='big')
-                                                          & 0x0FFF) + self.adc_b[i]
-                    with self.serial.ans_data_lock:
-                        self.adc_log_buffer.append(self.get_adc_data_str())
-                elif var[0] == 0x07 or var[0] == 0x08:  # получение данных МКО
-                    self.mko_aw = int.from_bytes(var[1][0:2], signed=False, byteorder='big')
-                    # print("aw = 0x%04X" % self.mko_aw)
-                    if var[1][2:]:
-                        self.mko_data = []
-                        for i in range(1, len(var[1]) // 2):
-                            self.mko_data.append(int.from_bytes(var[1][2*i:2*(i + 1)], signed=False, byteorder='big'))
-                    with self.serial.ans_data_lock:
-                        self.mko_log_buffer.append(self.get_mko_data_title())
+            try:
+                with self.serial.ans_data_lock:
+                    if self.serial.answer_data:
+                        data = copy.deepcopy(self.serial.answer_data)
+                        self.serial.answer_data = []
+                for var in data:
+                    if var[0] == 0x04:  # получение данных АЦП
+                        for i in range(len(var[1]) // 2):
+                            self.adc_data[i] = self.adc_a[i]*(int.from_bytes(var[1][2*i:2*i+2], signed=False, byteorder='big')
+                                                              & 0x0FFF) + self.adc_b[i]
+                        with self.serial.ans_data_lock:
+                            self.adc_log_buffer.append(self.get_adc_data_str())
+                    elif var[0] == 0x07 or var[0] == 0x08:  # получение данных МКО
+                        self.mko_aw = int.from_bytes(var[1][0:2], signed=False, byteorder='big')
+                        # print("aw = 0x%04X" % self.mko_aw)
+                        if var[1][2:]:
+                            self.mko_data = []
+                            for i in range(1, len(var[1]) // 2):
+                                self.mko_data.append(int.from_bytes(var[1][2*i:2*(i + 1)], signed=False, byteorder='big'))
+                        with self.serial.ans_data_lock:
+                            self.mko_log_buffer.append(self.get_mko_data_title())
+            except AttributeError:
+                pass
             if self._close_event.is_set() is True:
                 self._close_event.clear()
                 return

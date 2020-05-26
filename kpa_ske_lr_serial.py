@@ -57,9 +57,9 @@ class MySerial(serial.Serial):
     def open_id(self):  # функция для установки связи с КПА
         com_list = serial.tools.list_ports.comports()
         for com in com_list:
-            # print(com)
+            print(com)
             for serial_number in self.serial_numbers:
-                # print(com.serial_number, serial_number)
+                print(com.serial_number, serial_number)
                 if com.serial_number is not None:
                     if com.serial_number.find(serial_number) >= 0:
                         # print(com.device)
@@ -75,8 +75,11 @@ class MySerial(serial.Serial):
         return False
 
     def close_id(self):
-        self.close()
-        self.state = 0
+        try:
+            self.close()
+            self.state = 0
+        except Exception as error:
+            print("kpa_ske_lr_serial: close_id: ", error)
         pass
 
     def request(self, req_type="get_time", data=[]):
@@ -131,11 +134,11 @@ class MySerial(serial.Serial):
         return log
 
     def thread_function(self):
-        try:
-            while True:
+        while True:
+            time.sleep(0.010)
+            try:
                 nansw = 0
                 if self.is_open is True:
-                    time.sleep(0.010)
                     # отправка команд
                     if self.com_queue:
                         with self.com_send_lock:
@@ -165,6 +168,7 @@ class MySerial(serial.Serial):
                             timeout = time.clock() - time_start
                             # print("%.3f" % timeout)
                             if timeout >= self.read_timeout:
+                                self.state = -2
                                 break
                             try:
                                 read_data = self.read(128)
@@ -208,15 +212,17 @@ class MySerial(serial.Serial):
                             else:
                                 pass
                 else:
+                    self.state = -1
                     pass
                 if nansw == 1:
                     self.state = -3
                     self.nansw += 1
-                if self._close_event.is_set() is True:
-                    self._close_event.clear()
-                    return
-        except Exception as error:
-            print(error)
+            except Exception as error:
+                print("kpa_ske_lr_serial: thread_function: ", error)
+                self.state = -1
+            if self._close_event.is_set() is True:
+                self._close_event.clear()
+                return
         pass
 
 
