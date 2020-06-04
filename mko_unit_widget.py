@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Frame(object):
     def setupUi(self, Frame):
         Frame.setObjectName("Frame")
-        Frame.resize(750, 140)
+        Frame.resize(750, 160)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -98,8 +98,8 @@ class Ui_Frame(object):
         self.SubaddrLabel.setMinimumSize(QtCore.QSize(60, 30))
         self.SubaddrLabel.setObjectName("SubaddrLabel")
         self.DataTable = QtWidgets.QTableWidget(Frame)
-        self.DataTable.setGeometry(QtCore.QRect(330, 0, 421, 130))
-        self.DataTable.setMinimumSize(QtCore.QSize(0, 130))
+        self.DataTable.setGeometry(QtCore.QRect(330, 0, 421, 151))
+        self.DataTable.setMinimumSize(QtCore.QSize(0, 150))
         font = QtGui.QFont()
         font.setFamily("Courier New")
         font.setPointSize(8)
@@ -187,7 +187,7 @@ class Ui_Frame(object):
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         self.line = QtWidgets.QFrame(Frame)
-        self.line.setGeometry(QtCore.QRect(10, 129, 741, 21))
+        self.line.setGeometry(QtCore.QRect(10, 150, 741, 20))
         self.line.setLineWidth(1)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)

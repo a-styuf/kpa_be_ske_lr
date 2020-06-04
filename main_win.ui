@@ -128,7 +128,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="SKETab">
        <attribute name="title">
@@ -2704,6 +2704,9 @@ p, li { white-space: pre-wrap; }
           <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOff</enum>
           </property>
+          <property name="wordWrap">
+           <bool>false</bool>
+          </property>
           <property name="rowCount">
            <number>20</number>
           </property>
@@ -2744,7 +2747,7 @@ p, li { white-space: pre-wrap; }
           <row/>
           <column>
            <property name="text">
-            <string>Имя</string>
+            <string notr="true">Имя</string>
            </property>
            <property name="font">
             <font>
