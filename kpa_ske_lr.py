@@ -19,9 +19,9 @@ class Data:
         self._adc_data_state = [0 for i in range(len(self.adc_name))]
         # ## АЦП ## #
         # границы для определения статуса
-        self.adc_data_top = [20, 3.0, 3.0, 3.0, 32.8, 330, 0, 0,
+        self.adc_data_top = [4.5, 3.0, 3.0, 3.0, 32.8, 330, 0, 0,
                              0, 0, 0, 0, 0, 0, 0, 0]
-        self.adc_data_bot = [20, 1.0, 1.0, 1.0, 22.5, 70, 0, 0,
+        self.adc_data_bot = [1.5, 1.0, 1.0, 1.0, 22.5, 70, 0, 0,
                              0, 0, 0, 0, 0, 0, 0, 0]
         self.adc_data_nodata = [0, 0, 0, 0, 0, 0, 0, 0,
                                 0, 0, 0, 0, 0, 0, 0, 0]
