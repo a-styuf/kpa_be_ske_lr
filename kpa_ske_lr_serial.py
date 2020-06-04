@@ -57,9 +57,9 @@ class MySerial(serial.Serial):
     def open_id(self):  # функция для установки связи с КПА
         com_list = serial.tools.list_ports.comports()
         for com in com_list:
-            print(com)
+            #print(com)
             for serial_number in self.serial_numbers:
-                print(com.serial_number, serial_number)
+                #print(com.serial_number, serial_number)
                 if com.serial_number is not None:
                     if com.serial_number.find(serial_number) >= 0:
                         # print(com.device)
