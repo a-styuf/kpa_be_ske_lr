@@ -9,7 +9,7 @@ import numpy as np
 
 class Data:
     def __init__(self):
-        self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH06VN4D", "AH06VN4E", "AH06VN4F", "AH06VN4IA", "AH06VN4HA"])
+        self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH4V84LOA", "A50285BIA"]) #меняешь здесь, проверь ф-ю disconnect
         self.serial.open_id()
         self.adc_name = ["КС, Ом", "АМКО, В", "Норма ЦМ, В", "КПБЭ, В",
                          "U БЭ, В", "I БЭ, мА", "Канал 6, кв", "Канал 7, кв",
@@ -78,12 +78,12 @@ class Data:
                               75, 1, 1,
                               13, 13, 1,
                               13, 15, 15,
-                              -20, 170, 85,
-                              -20, 170, 85,
-                              -10, 170, 85,
-                              -10, 170, 85,
                               0, 170, 85,
                               0, 170, 85,
+                              10, 170, 85,
+                              10, 170, 85,
+                              20, 170, 85,
+                              20, 170, 85,
                               4000, 240]
         self.test_data_bot = [23, 170, 5.5,
                               1.0, 1.0, 1.0,
@@ -91,12 +91,12 @@ class Data:
                               40, 0, 0,
                               7, 7, -1,
                               7, -15, -15,
+                              -20, 120, -50,
+                              -20, 120, -50,
+                              -10, 120, -50,
+                              -10, 120, -50,
                               0, 120, -50,
                               0, 120, -50,
-                              10, 120, -50,
-                              10, 120, -50,
-                              20, 120, -50,
-                              20, 120, -50,
                               0, 9]
         self.test_color_teamplate = [["lightcoral", "palegreen", "lightcoral", "ghostwhite"] for i in
                                      range(len(self.test_data_name))]
@@ -125,8 +125,7 @@ class Data:
         self.serial._close_event.set()
         time.sleep(0.1)
         del self.serial
-        self.serial = kpa_ske_lr_serial.MySerial(
-            serial_numbers=["AH06VN4D", "AH06VN4E", "AH06VN4F", "AH06VN4IA", "AH06VN4HA"])
+        self.serial = kpa_ske_lr_serial.MySerial(serial_numbers=["AH4V84LOA", "A50285BIA"])
         pass
 
     def get_adc(self):
@@ -346,14 +345,20 @@ class Data:
         try:
             # # задаем воздействие с КПА
             self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=5000, t=1, N=20, M=meas_interval)
+
             # # читаем кадры с матрицей
-            self.test_stop_event.wait(meas_interval*2)
-            if self.test_stop_event.isSet():
-                raise Exception('Принудительное завершение работы')
-            self.read_from_rt(self.mko_addr, 7, 32)
-            time.sleep(0.5)
             cw, aw, data = self.get_mko_data()
-            table_data = luna_data.frame_parcer(data)
+            for i in range(2):
+                #self.mpp_test_sign(dev="all", u_max=10, u_min=0, T=5000, t=1, N=20, M=meas_interval)
+                self.test_stop_event.wait(meas_interval//2)
+                if self.test_stop_event.isSet():
+                    raise Exception('Принудительное завершение работы')
+                self.read_from_rt(self.mko_addr, 7, 32)
+                time.sleep(0.5)
+                cw, aw, data = self.get_mko_data()
+                # print("kpa_ske_lr, mpp_read_algoritm data", data)
+                table_data = luna_data.frame_parcer(data)
+                # print("kpa_ske_lr, mpp_read_algoritm table_data", table_data)
             if aw == cw & 0xF800:
                 for report in table_data:
                     if "МПП3@МПП3" in report[0]: self._set_test_data("Максимум Uизм2, В", report[1])
@@ -390,6 +395,7 @@ class Data:
         time.sleep(0.5)
         cw, aw, data = self.get_mko_data()
         table_data = luna_data.frame_parcer(data)
+        # print("kpa_ske_lr dep_meas_algoritm tabl data", table_data)
         self.dep_0v_on()  # отключаем тестовые воздействия на ДЭП
         if aw == cw & 0xF800:
             for var in table_data:
