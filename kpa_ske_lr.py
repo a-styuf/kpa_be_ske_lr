@@ -468,8 +468,9 @@ class Data:
             if self.serial.state != 1:
                 self.ske_test_status = -1
                 raise Exception('COM-порт не подключен')
+
             self.get_adc()
-            time.sleep(0.3)
+            time.sleep(0.5)
             self.form_kpa_data()
             self._set_test_data("Потребление", "%.2f" % self.ske_W[0])
             self._set_test_data("Напряжение", "%.2f" % self.ske_U[0])
